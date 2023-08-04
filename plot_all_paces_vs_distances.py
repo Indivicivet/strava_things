@@ -8,4 +8,8 @@ all_data = {
     for p in MY_DATA_FOLDER.glob("*.json")
     for activity_id, data in json.loads(p.read_text()).items()
 }
-print(all_data.keys())
+
+for activity_id, info in all_data.items():
+    print(f"{activity_id=}")
+    for thing in info:
+        print(thing["type"], thing["original_size"])
