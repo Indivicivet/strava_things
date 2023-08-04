@@ -8,6 +8,8 @@ ACCESS_TOKEN = (
     Path(__file__).parent / "secrets" / "latest_access.txt"
 ).read_text().strip()
 STRAVA_RATE_CAP = 20  # actually 100; play safe for testing
+MY_DATA_FOLDER = Path(__file__).parent / "my_data"
+MY_DATA_FOLDER.mkdir(exist_ok=True, parents=True)
 
 
 class RequestHadError(Exception):
@@ -84,6 +86,5 @@ for idx in range(START_ACTIVITY_IDX, END_ACTIVITY_IDX):
         break
 
 (
-    Path(__file__).parent
-    / f"streams_{START_ACTIVITY_IDX}_to_{END_ACTIVITY_IDX}.json"
+    MY_DATA_FOLDER / f"streams_{START_ACTIVITY_IDX}_to_{END_ACTIVITY_IDX}.json"
 ).write_text(json.dumps(result))
