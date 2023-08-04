@@ -10,6 +10,10 @@ ACCESS_TOKEN = (
 STRAVA_RATE_CAP = 20  # actually 100; play safe for testing
 
 
+class RequestHadError(Exception):
+    pass
+
+
 # https://developers.strava.com/docs/reference/#api-models-StreamSet
 ALL_STREAMS = [
     "time",
@@ -27,10 +31,13 @@ ALL_STREAMS = [
 
 
 def v3_api_call(api_call):
-    return requests.get(
+    result = requests.get(
         f"https://www.strava.com/api/v3/{api_call}",
         headers={"Authorization": "Bearer " + ACCESS_TOKEN},
     ).json()
+    if "errors" in result:
+        raise RequestHadError(result)
+    return result
 
 
 def get_activity_streams(activity_id):
@@ -66,8 +73,15 @@ print(f"querying activites from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
 
 result = {}
 for activity_id in ids[START_ACTIVITY_IDX:END_ACTIVITY_IDX]:
+for idx in range(START_ACTIVITY_IDX, END_ACTIVITY_IDX):
+    activity_id = ids[idx]
     print(f"retrieving {activity_id}")
-    result[activity_id] = get_activity_streams(activity_id)
+    try:
+        result[activity_id] = get_activity_streams(activity_id)
+    except RequestHadError as e:
+        print(f"hit error {e}")
+        END_ACTIVITY_IDX = idx
+        break
 
 (
     Path(__file__).parent
