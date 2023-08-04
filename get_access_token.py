@@ -2,11 +2,22 @@ import requests
 from pathlib import Path
 
 
-client_id = input(
-    "go to https://www.strava.com/settings/api\n"
-    "client_id=? "
-)
-client_secret = input("client_secret=? ")
+secrets_folder = Path(__file__).parent / "secrets"
+client_id_file = secrets_folder / "client_id_and_secret.txt"
+if client_id_file.exists():
+    print(f"using client_id and client_secret from {client_id_file}")
+    client_id, client_secret = client_id_file.read_text().strip().splitlines()
+else:
+    client_id = input(
+        "go to https://www.strava.com/settings/api"
+        "to get client id and secret\n"
+        "client_id=?"
+    )
+    client_secret = input("client_secret=? ")
+    client_id_file.write_text(f"{client_id}\n{client_secret}")
+    print(f"wrote client id and client secret to {client_id_file}")
+
+
 code = input(
     "now go to (and Authorize):\n"
     "https://www.strava.com/oauth/authorize"
