@@ -74,7 +74,6 @@ END_ACTIVITY_IDX = START_ACTIVITY_IDX + STRAVA_RATE_CAP - 10  # wiggle room
 print(f"querying activites from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
 
 result = {}
-for activity_id in ids[START_ACTIVITY_IDX:END_ACTIVITY_IDX]:
 for idx in range(START_ACTIVITY_IDX, END_ACTIVITY_IDX):
     activity_id = ids[idx]
     print(f"retrieving {activity_id}")
