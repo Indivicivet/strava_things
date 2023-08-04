@@ -1,4 +1,6 @@
 import requests
+from pathlib import Path
+
 
 client_id = input(
     "go to https://www.strava.com/settings/api\n"
@@ -25,3 +27,9 @@ print(resp)
 print()
 print("access token:", resp["access_token"])
 print("refresh token:", resp["refresh_token"])
+
+
+folder = Path(__file__).parent / "secrets"
+folder.mkdir(exist_ok=True, parents=True)
+for tok in ["access", "refresh"]:
+    (folder / f"latest_{tok}.txt").write_text(resp[f"{tok}_token"])
