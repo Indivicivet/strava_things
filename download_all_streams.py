@@ -7,9 +7,9 @@ from pathlib import Path
 ACCESS_TOKEN = (
     Path(__file__).parent / "secrets" / "latest_access.txt"
 ).read_text().strip()
-STRAVA_RATE_CAP = 20  # actually 100; play safe for testing
 MY_DATA_FOLDER = Path(__file__).parent / "my_data"
 MY_DATA_FOLDER.mkdir(exist_ok=True, parents=True)
+STRAVA_RATE_CAP = 100  # actually 100; play safe for testing
 
 
 class RequestHadError(Exception):
