@@ -59,7 +59,7 @@ print(ids)
 print()
 
 
-START_ACTIVITY_IDX = 0
+START_ACTIVITY_IDX = 30
 END_ACTIVITY_IDX = START_ACTIVITY_IDX + STRAVA_RATE_CAP - 10  # wiggle room
 
 print(f"querying activites from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
@@ -68,4 +68,8 @@ result = {}
 for activity_id in ids[START_ACTIVITY_IDX:END_ACTIVITY_IDX]:
     print(f"retrieving {activity_id}")
     result[activity_id] = get_activity_streams(activity_id)
-(Path(__file__).parent / "all_streams.json").write_text(json.dumps(result))
+
+(
+    Path(__file__).parent
+    / f"streams_{START_ACTIVITY_IDX}_to_{END_ACTIVITY_IDX}.json"
+).write_text(json.dumps(result))
