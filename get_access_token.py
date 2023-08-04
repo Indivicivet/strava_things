@@ -40,7 +40,8 @@ print("access token:", resp["access_token"])
 print("refresh token:", resp["refresh_token"])
 
 
-folder = Path(__file__).parent / "secrets"
-folder.mkdir(exist_ok=True, parents=True)
+secrets_folder.mkdir(exist_ok=True, parents=True)
 for tok in ["access", "refresh"]:
-    (folder / f"latest_{tok}.txt").write_text(resp[f"{tok}_token"])
+    out_file = secrets_folder / f"latest_{tok}.txt"
+    out_file.write_text(resp[f"{tok}_token"])
+    print(f"wrote to {out_file}")
