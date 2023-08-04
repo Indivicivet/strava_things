@@ -68,7 +68,7 @@ print(ids)
 print()
 
 
-START_ACTIVITY_IDX = 30
+START_ACTIVITY_IDX = 0
 END_ACTIVITY_IDX = START_ACTIVITY_IDX + STRAVA_RATE_CAP - 10  # wiggle room
 
 print(f"querying activites from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
