@@ -45,7 +45,7 @@ def v3_api_call(api_call):
 def get_activity_streams(activity_id):
     return v3_api_call(
         f"activities/{activity_id}/streams?"
-        + "&".join("keys=" + key for key in ALL_STREAMS)
+        + "keys=" + ",".join(ALL_STREAMS)
         + "&key_by_type",
     )
 
