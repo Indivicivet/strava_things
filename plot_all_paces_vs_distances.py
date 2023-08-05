@@ -55,8 +55,12 @@ for activity_id, info in all_data.items():
 #max_distance = max(run.distance[-1] for run in runs)
 PLOT_DISTANCE_INTERVAL = 100
 
-for run in tqdm(runs):
-    intervals = range(0, int(run.distance[-1]), PLOT_DISTANCE_INTERVAL)
+for run in tqdm(runs[:30]):
+    intervals = range(
+        PLOT_DISTANCE_INTERVAL * 2,
+        int(run.distance[-1]),
+        PLOT_DISTANCE_INTERVAL,
+    )
     interval_speeds = []
     for interval in intervals:
         shortest_time = 9999
