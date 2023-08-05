@@ -4,6 +4,7 @@ from pathlib import Path
 
 from matplotlib import pyplot as plt
 import seaborn
+from tqdm import tqdm
 
 seaborn.set()
 
@@ -54,7 +55,7 @@ for activity_id, info in all_data.items():
 #max_distance = max(run.distance[-1] for run in runs)
 PLOT_DISTANCE_INTERVAL = 100
 
-for run in runs[:3]:
+for run in tqdm(runs):
     intervals = range(0, int(run.distance[-1]), PLOT_DISTANCE_INTERVAL)
     interval_speeds = []
     for interval in intervals:
