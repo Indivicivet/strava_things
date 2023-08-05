@@ -21,23 +21,32 @@ class Run:
     activity_id: str
     velocity: list
     distance: list
+    time: list
 
 
 runs = []
 for activity_id, info in all_data.items():
     this_velocities = None
     this_distances = None
+    this_times = None
     for retrieved in info:
         if retrieved["type"] == "velocity_smooth":
             this_velocities = retrieved["data"]
         if retrieved["type"] == "distance":
             this_distances = retrieved["data"]
-    if this_distances is not None and this_velocities is not None:
+        if retrieved["type"] == "time":
+            this_times = retrieved["time"]
+    if (
+        this_distances is not None
+        and this_velocities is not None
+        and this_times is not None
+    ):
         runs.append(
             Run(
                 activity_id=activity_id,
                 velocity=this_velocities,
                 distance=this_distances,
+                time=this_times,
             )
         )
 
