@@ -35,7 +35,7 @@ for activity_id, info in all_data.items():
         if retrieved["type"] == "distance":
             this_distances = retrieved["data"]
         if retrieved["type"] == "time":
-            this_times = retrieved["time"]
+            this_times = retrieved["data"]
     if (
         this_distances is not None
         and this_velocities is not None
