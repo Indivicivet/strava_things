@@ -2,6 +2,9 @@ import json
 from pathlib import Path
 
 from matplotlib import pyplot as plt
+import seaborn
+
+seaborn.set()
 
 MY_DATA_FOLDER = Path(__file__).parent / "my_data"
 
