@@ -26,6 +26,9 @@ for activity_id, info in all_data.items():
     if this_velocities is None:
         print("no velocities?")
         continue
-    plt.plot(this_distances, this_velocities)
+    average_velocity = sum(this_velocities) / len(this_velocities)
+    plt.plot([0, max(this_distances)], [average_velocity] * 2)
 
+plt.ylabel("velocity")
+plt.xlabel("distance")
 plt.show()
