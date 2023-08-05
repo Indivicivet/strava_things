@@ -55,7 +55,7 @@ for activity_id, info in all_data.items():
 #max_distance = max(run.distance[-1] for run in runs)
 PLOT_DISTANCE_INTERVAL = 100
 
-for run in tqdm(runs[:30]):
+for run in tqdm(runs):
     intervals = range(
         PLOT_DISTANCE_INTERVAL * 2,
         int(run.distance[-1]),
