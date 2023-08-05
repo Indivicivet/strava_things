@@ -1,4 +1,5 @@
 import json
+from dataclasses import dataclass
 from pathlib import Path
 
 from matplotlib import pyplot as plt
@@ -15,7 +16,14 @@ all_data = {
 }
 
 
-velocity_and_distance = {}
+@dataclass
+class Run:
+    activity_id: str
+    velocity: list
+    distance: list
+
+
+runs = []
 for activity_id, info in all_data.items():
     this_velocities = None
     this_distances = None
@@ -25,14 +33,17 @@ for activity_id, info in all_data.items():
         if retrieved["type"] == "distance":
             this_distances = retrieved["data"]
     if this_distances is not None and this_velocities is not None:
-        velocity_and_distance[activity_id] = {
-            "velocity": this_velocities,
-            "distance": this_distances,
-        }
+        runs.append(
+            Run(
+                activity_id=activity_id,
+                velocity=this_velocities,
+                distance=this_distances,
+            )
+        )
 
-for _, data in velocity_and_distance.items():
-    average_velocity = sum(data["velocity"]) / len(data["velocity"])
-    plt.plot([0, max(data["distance"])], [average_velocity] * 2)
+for run in runs:
+    average_velocity = sum(run.velocity) / len(run.velocity)
+    plt.plot([0, max(run.distance)], [average_velocity] * 2)
 
 plt.ylabel("velocity")
 plt.xlabel("distance")
