@@ -86,6 +86,9 @@ for run in tqdm(runs):
             interval_speeds.append(interval / shortest_time)
     plt.plot(intervals, interval_speeds)
 
+#plt.xscale("log")
+start, end = plt.gca().get_xlim()
+plt.gca().xaxis.set_ticks(range(0, int(end) + 1000, 1000))
 plt.ylabel("velocity")
 plt.xlabel("distance")
 plt.show()
