@@ -23,6 +23,7 @@ class Run:
     velocity: list
     distance: list
     time: list
+    cadence: list
 
 
 runs = []
@@ -30,17 +31,22 @@ for activity_id, info in all_data.items():
     this_velocities = None
     this_distances = None
     this_times = None
+    this_cadences = None
     for retrieved in info:
+        # todo :: wow this is awful. :)
         if retrieved["type"] == "velocity_smooth":
             this_velocities = retrieved["data"]
         if retrieved["type"] == "distance":
             this_distances = retrieved["data"]
         if retrieved["type"] == "time":
             this_times = retrieved["data"]
+        if retrieved["type"] == "cadence":
+            this_cadences = retrieved["data"]
     if (
         this_distances is not None
         and this_velocities is not None
         and this_times is not None
+        and this_cadences is not None
     ):
         runs.append(
             Run(
@@ -48,8 +54,11 @@ for activity_id, info in all_data.items():
                 velocity=this_velocities,
                 distance=this_distances,
                 time=this_times,
+                cadence=this_cadences,
             )
         )
+    else:
+        print(f"got a run missing things, {activity_id=}")
 
 
 #max_distance = max(run.distance[-1] for run in runs)
