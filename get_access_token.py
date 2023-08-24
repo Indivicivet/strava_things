@@ -3,6 +3,7 @@ from pathlib import Path
 
 
 secrets_folder = Path(__file__).parent / "secrets"
+secrets_folder.mkdir(exist_ok=True, parents=True)
 client_id_file = secrets_folder / "client_id_and_secret.txt"
 if client_id_file.exists():
     print(f"using client_id and client_secret from {client_id_file}")
