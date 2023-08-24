@@ -120,6 +120,13 @@ for run in tqdm(runs[:5]):
         interval_speeds,
         c=color_map(hr_to_01(interval_hrs)[0]),
     )
+    plt.scatter(
+        intervals,
+        interval_speeds,
+        c=color_map(hr_to_01(interval_hrs)),
+        s=20,
+    )
+
 
 #plt.xscale("log")
 start, end = plt.gca().get_xlim()
