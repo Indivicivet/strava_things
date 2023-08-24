@@ -118,7 +118,7 @@ for run in tqdm(runs[:5]):
     plt.plot(
         intervals,
         interval_speeds,
-        c=color_map(hr_to_01(interval_hrs)[0]),
+        c=color_map(hr_to_01(np.mean(interval_hrs, axis=0))),
     )
     plt.scatter(
         intervals,
