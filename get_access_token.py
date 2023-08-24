@@ -10,7 +10,7 @@ if client_id_file.exists():
 else:
     client_id = input(
         "go to https://www.strava.com/settings/api"
-        "to get client id and secret\n"
+        " to get client id and secret\n"
         "client_id=?"
     )
     client_secret = input("client_secret=? ")
