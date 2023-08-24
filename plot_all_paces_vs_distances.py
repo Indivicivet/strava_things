@@ -74,16 +74,25 @@ for activity_id, info in all_data.items():
 PLOT_DISTANCE_INTERVAL = 100
 
 
-def hr_to_01(hr, max_hr=210, min_hr=100):
+HR_MIN = 130
+HR_MAX = 200
+
+
+def hr_to_01(hr):
     return np.clip(
-        (max_hr - np.array(hr)) / (max_hr - min_hr),
+        (np.array(hr) - HR_MIN) / (HR_MAX - HR_MIN),
         0, 1
     )
 
 
-color_map = matplotlib.cm.get_cmap("RdYlBu")
+color_map_from_01 = matplotlib.cm.get_cmap("RdYlBu").reversed()
 
-for run in tqdm(runs[:5]):
+
+def color_map(hr):
+    return color_map_from_01(hr_to_01(hr))
+
+
+for run in tqdm(runs[:5]):  # most recent
     intervals = range(
         PLOT_DISTANCE_INTERVAL * 2,
         int(run.distance[-1]),
@@ -119,14 +128,22 @@ for run in tqdm(runs[:5]):
     plt.plot(
         intervals,
         interval_speeds,
-        c=color_map(hr_to_01(np.mean(interval_hrs, axis=0))),
+        c=color_map(np.mean(interval_hrs, axis=0)),
     )
     plt.scatter(
         intervals,
         interval_speeds,
-        c=color_map(hr_to_01(interval_hrs)),
+        c=color_map(interval_hrs),
         s=20,
     )
+
+
+color_scalar_mappable = plt.cm.ScalarMappable(
+    cmap=color_map_from_01,
+    norm=plt.Normalize(vmin=HR_MIN, vmax=HR_MAX),
+)
+color_scalar_mappable.set_array([])  # Empty array since we only need the colormap
+cbar = plt.colorbar(color_scalar_mappable)
 
 
 #plt.xscale("log")
