@@ -1,4 +1,6 @@
+import datetime
 import json
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -98,7 +100,7 @@ for run in tqdm(runs[:5]):  # most recent
         int(run.distance[-1]),
         PLOT_DISTANCE_INTERVAL,
     )
-    interval_speeds = []
+    interval_paces = []
     interval_hrs = []
     for interval in intervals:
         shortest_time = 9999
@@ -121,18 +123,23 @@ for run in tqdm(runs[:5]):  # most recent
                         hr = sum(run.heartrate[start_i:][:delta_i]) / delta_i
         if shortest_time == 0:
             print(f"shortest_time is zero!?")
-            interval_speeds.append(0)
+            interval_paces.append("7:00")
         else:
-            interval_speeds.append(interval / shortest_time)
+            interval_paces.append(datetime.datetime.strptime(
+                time.strftime(
+                    "%M:%S", time.gmtime(shortest_time * 1000 / interval)
+                ),
+                "%M:%S",
+            ))
         interval_hrs.append(hr)
     plt.plot(
         intervals,
-        interval_speeds,
+        interval_paces,
         c=color_map(np.mean(interval_hrs, axis=0)),
     )
     plt.scatter(
         intervals,
-        interval_speeds,
+        interval_paces,
         c=color_map(interval_hrs),
         s=20,
     )
@@ -149,6 +156,8 @@ cbar = plt.colorbar(color_scalar_mappable)
 #plt.xscale("log")
 start, end = plt.gca().get_xlim()
 plt.gca().xaxis.set_ticks(range(0, int(end) + 1000, 1000))
-plt.ylabel("velocity")
+plt.gca().yaxis.set_major_formatter(matplotlib.dates.DateFormatter("%M:%S"))
+plt.gca().invert_yaxis()
 plt.xlabel("distance")
+plt.ylabel("pace (MM:SS / km)")
 plt.show()
