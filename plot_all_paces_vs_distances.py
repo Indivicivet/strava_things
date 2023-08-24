@@ -94,7 +94,7 @@ def color_map(hr):
     return color_map_from_01(hr_to_01(hr))
 
 
-for run in tqdm(runs[:5]):  # most recent
+for run in tqdm(runs[:50]):  # most recent
     intervals = range(
         PLOT_DISTANCE_INTERVAL * 2,
         int(run.distance[-1]),
