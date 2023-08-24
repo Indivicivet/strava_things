@@ -10,6 +10,7 @@ import seaborn
 from tqdm import tqdm
 
 seaborn.set()
+plt.style.use("dark_background")
 
 MY_DATA_FOLDER = Path(__file__).parent / "my_data"
 
