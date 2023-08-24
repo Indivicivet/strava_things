@@ -125,11 +125,8 @@ for run in tqdm(runs[:5]):  # most recent
             print(f"shortest_time is zero!?")
             interval_paces.append("7:00")
         else:
-            interval_paces.append(datetime.datetime.strptime(
-                time.strftime(
-                    "%M:%S", time.gmtime(shortest_time * 1000 / interval)
-                ),
-                "%M:%S",
+            interval_paces.append(datetime.datetime.utcfromtimestamp(
+                shortest_time * 1000 / interval
             ))
         interval_hrs.append(hr)
     plt.plot(
