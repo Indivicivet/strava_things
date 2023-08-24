@@ -12,7 +12,7 @@ else:
     client_id = input(
         "go to https://www.strava.com/settings/api"
         " to get client id and secret\n"
-        "client_id=?"
+        "client_id=? "
     )
     client_secret = input("client_secret=? ")
     client_id_file.write_text(f"{client_id}\n{client_secret}")
