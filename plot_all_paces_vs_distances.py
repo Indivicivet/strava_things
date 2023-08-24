@@ -1,6 +1,7 @@
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 from matplotlib import pyplot as plt
 import seaborn
@@ -24,6 +25,7 @@ class Run:
     distance: list
     time: list
     cadence: list
+    heartrate: Optional[list] = None
 
 
 runs = []
@@ -32,6 +34,7 @@ for activity_id, info in all_data.items():
     this_distances = None
     this_times = None
     this_cadences = None
+    this_hrs = None
     for retrieved in info:
         # todo :: wow this is awful. :)
         if retrieved["type"] == "velocity_smooth":
@@ -42,6 +45,8 @@ for activity_id, info in all_data.items():
             this_times = retrieved["data"]
         if retrieved["type"] == "cadence":
             this_cadences = retrieved["data"]
+        if retrieved["type"] == "heartrate":
+            this_hrs = retrieved["data"]
     if (
         this_distances is not None
         and this_velocities is not None
@@ -55,6 +60,7 @@ for activity_id, info in all_data.items():
                 distance=this_distances,
                 time=this_times,
                 cadence=this_cadences,
+                heartrate=this_hrs,
             )
         )
     else:
