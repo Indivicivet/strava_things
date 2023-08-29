@@ -6,7 +6,7 @@ import strava_shared
 runs = strava_shared.load_runs()
 
 
-def my_smooth(data, smooth_length=20):
+def my_smooth(data, smooth_length=100):
     return [
         np.mean(data[i:i+smooth_length])
         for i in range(len(data) - smooth_length)
