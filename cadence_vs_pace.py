@@ -1,7 +1,10 @@
 from matplotlib import pyplot as plt
 import numpy as np
+import seaborn
 
 import strava_shared
+
+seaborn.set()
 
 runs = strava_shared.load_runs()
 
