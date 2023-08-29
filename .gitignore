@@ -1,3 +1,5 @@
 .idea
 secrets/
 my_data/
+
+*.pyc
