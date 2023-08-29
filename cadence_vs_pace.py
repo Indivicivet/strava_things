@@ -1,3 +1,4 @@
+import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 import seaborn
@@ -8,7 +9,8 @@ seaborn.set()
 
 runs = strava_shared.load_runs()
 
-PLOT_STRIDE_LENGTH = False
+PLOT_STRIDE_LENGTH = True
+
 
 def my_smooth(data, smooth_length=100):
     return np.array([
@@ -23,6 +25,7 @@ for run in runs:
     plt.scatter(
         smooth_vel,
         smooth_vel / (smooth_cadence / 60) if PLOT_STRIDE_LENGTH else smooth_cadence,
+        # color=matplotlib.cm.get_cmap("PiYG").reversed()(run.distance[-1] / 30000),
         alpha=0.1,
         s=3,
     )
