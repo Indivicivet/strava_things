@@ -14,7 +14,7 @@ def my_smooth(data, smooth_length=20):
 
 
 for run in runs:
-    plt.plot(my_smooth(run.velocity), my_smooth(run.cadence), alpha=0.1)
+    plt.scatter(my_smooth(run.velocity), my_smooth(run.cadence), alpha=0.1, s=3)
 
 plt.xlabel("velocity")
 plt.ylabel("cadence")
