@@ -54,7 +54,8 @@ def load_runs():
                     velocity=this_velocities,
                     distance=this_distances,
                     time=this_times,
-                    cadence=this_cadences,
+                    # cadences are in cycles/min, I want spm
+                    cadence=[2 * c for c in this_cadences],
                     heartrate=this_hrs,
                 )
             )

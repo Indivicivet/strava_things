@@ -22,7 +22,7 @@ for run in runs:
     smooth_cadence = my_smooth(run.cadence)
     plt.scatter(
         smooth_vel,
-        smooth_vel / (smooth_cadence * (2 / 60)) if PLOT_STRIDE_LENGTH else smooth_cadence,
+        smooth_vel / (smooth_cadence / 60) if PLOT_STRIDE_LENGTH else smooth_cadence,
         alpha=0.1,
         s=3,
     )
