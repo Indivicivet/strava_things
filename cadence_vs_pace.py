@@ -12,7 +12,7 @@ runs = strava_shared.load_runs()
 PLOT_STRIDE_LENGTH = True
 
 
-def my_smooth(data, smooth_length=100):
+def my_smooth(data, smooth_length=30):
     return np.array([
         np.mean(data[i:i+smooth_length])
         for i in range(len(data) - smooth_length)
