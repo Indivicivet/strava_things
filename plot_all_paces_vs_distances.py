@@ -51,11 +51,11 @@ for run in tqdm(runs[:50]):  # most recent
         for start_i, start_d in enumerate(run.distance):
             delta_i = None
             try:
-                delta_i = next(
+                delta_i = max(next(
                     i
                     for i, d in enumerate(run.distance[start_i + 1:])
                     if (d - start_d) > interval
-                )
+                ), 1)  # todo :: hacky way to avoid 0?
             except StopIteration:
                 break
             else:
