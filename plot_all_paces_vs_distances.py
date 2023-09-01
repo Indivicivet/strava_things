@@ -18,6 +18,7 @@ runs = strava_shared.load_runs()
 #max_distance = max(run.distance[-1] for run in runs)
 PLOT_DISTANCE_INTERVAL = 100
 
+JUST_PLOT_HRS = False
 
 HR_MIN = 130
 HR_MAX = 200
@@ -75,12 +76,12 @@ for run in tqdm(runs[:50]):  # most recent
             ))
         interval_hrs.append(hr)
     plt.plot(
-        intervals,
+        interval_hrs if JUST_PLOT_HRS else intervals,
         interval_paces,
         c=color_map(np.mean(interval_hrs, axis=0)),
     )
     plt.scatter(
-        intervals,
+        interval_hrs if JUST_PLOT_HRS else intervals,
         interval_paces,
         c=color_map(interval_hrs),
         s=20,
@@ -97,9 +98,10 @@ cbar = plt.colorbar(color_scalar_mappable)
 
 #plt.xscale("log")
 start, end = plt.gca().get_xlim()
-plt.gca().xaxis.set_ticks(range(0, int(end) + 1000, 1000))
+if not JUST_PLOT_HRS:
+    plt.gca().xaxis.set_ticks(range(0, int(end) + 1000, 1000))
 plt.gca().yaxis.set_major_formatter(matplotlib.dates.DateFormatter("%M:%S"))
 plt.gca().invert_yaxis()
-plt.xlabel("distance")
+plt.xlabel("HR" if JUST_PLOT_HRS else "distance")
 plt.ylabel("pace (MM:SS / km)")
 plt.show()
