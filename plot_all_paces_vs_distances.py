@@ -66,7 +66,9 @@ for run in tqdm(runs[:50]):  # most recent
                         hr = sum(run.heartrate[start_i:][:delta_i]) / delta_i
         if shortest_time == 0:
             print(f"shortest_time is zero!?")
-            interval_paces.append("7:00")
+            interval_paces.append(datetime.datetime.fromtimestamp(
+                7 * 60 * 1000 / interval  # 7min pace
+            ))
         else:
             interval_paces.append(datetime.datetime.utcfromtimestamp(
                 shortest_time * 1000 / interval
