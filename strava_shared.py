@@ -18,7 +18,7 @@ class Run:
     latlng: Optional[list] = None
 
 
-def load_runs():
+def load_runs(require_cadences=True):
     all_data = {
         activity_id: data
         for p in MY_DATA_FOLDER.glob("*.json")
@@ -49,7 +49,7 @@ def load_runs():
             this_distances is not None
             and this_velocities is not None
             and this_times is not None
-            and this_cadences is not None
+            and (this_cadences is not None or not require_cadences)
         ):
             runs.append(
                 Run(
@@ -58,7 +58,11 @@ def load_runs():
                     distance=this_distances,
                     time=this_times,
                     # cadences are in cycles/min, I want spm
-                    cadence=[2 * c for c in this_cadences],
+                    cadence=(
+                        [2 * c for c in this_cadences]
+                        if this_cadences is not None
+                        else None
+                    ),
                     heartrate=this_hrs,
                     latlng=this_latlng,
                 )
