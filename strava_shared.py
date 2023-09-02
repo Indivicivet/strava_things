@@ -15,6 +15,7 @@ class Run:
     time: list
     cadence: list
     heartrate: Optional[list] = None
+    latlng: Optional[list] = None
 
 
 def load_runs():
@@ -42,6 +43,8 @@ def load_runs():
                 this_cadences = retrieved["data"]
             if retrieved["type"] == "heartrate":
                 this_hrs = retrieved["data"]
+            if retrieved["type"] == "latlng":
+                this_latlng = retrieved["data"]
         if (
             this_distances is not None
             and this_velocities is not None
@@ -57,6 +60,7 @@ def load_runs():
                     # cadences are in cycles/min, I want spm
                     cadence=[2 * c for c in this_cadences],
                     heartrate=this_hrs,
+                    latlng=this_latlng,
                 )
             )
         else:
