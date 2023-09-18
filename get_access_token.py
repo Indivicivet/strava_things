@@ -27,6 +27,8 @@ code = input(
     "&response_type=code&scope=activity:read_all"
     "\n(copy from browser URL) code=? "
 )
+if "code=" in code:  # full URL was copy-pasted
+    code = code[code.index("code=") + 5:].split("&")[0]
 
 resp = requests.post(
     "https://www.strava.com/oauth/token?"
