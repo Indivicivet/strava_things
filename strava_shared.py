@@ -31,6 +31,7 @@ def load_runs(require_cadences=True):
         this_times = None
         this_cadences = None
         this_hrs = None
+        this_latlng = None
         for retrieved in info["streams"]:
             # todo :: wow this is awful. :)
             if retrieved["type"] == "velocity_smooth":
