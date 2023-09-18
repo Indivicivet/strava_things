@@ -1,7 +1,5 @@
 todos:
 
-support copy/paste entire url rather than just "code="
-
 use refresh token
 
 better storing/caching of recent runs etc (better filenames+amalgamation)
