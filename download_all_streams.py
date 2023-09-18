@@ -90,5 +90,5 @@ for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
         break
 
 (
-    MY_DATA_FOLDER / f"streams_{START_ACTIVITY_IDX}_to_{END_ACTIVITY_IDX}.json"
+    MY_DATA_FOLDER / f"activities_{START_ACTIVITY_IDX}_to_{END_ACTIVITY_IDX}.json"
 ).write_text(json.dumps(result))
