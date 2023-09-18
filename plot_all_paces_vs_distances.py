@@ -24,6 +24,12 @@ HR_MIN = 130
 HR_MAX = 200
 
 PLOT_TOPLINES_ONLY = True
+TOPLINE_DATE_CUTOFFS = [
+    datetime.datetime(3000, 1, 1),
+    datetime.datetime(2023, 7, 1),
+    datetime.datetime(2023, 1, 1),
+    datetime.datetime(2022, 7, 1),
+]
 
 
 def hr_to_01(hr):
@@ -42,9 +48,14 @@ def color_map(hr):
 
 if PLOT_TOPLINES_ONLY:
     print("plotting toplines only")
-    topline_paces = np.array([])
-    topline_hrs = np.array([])
-    topline_intervals = []
+    topline_values = {
+        dt: {
+            "paces": np.array([]),
+            "hrs": np.array([]),
+            "intervals": [],
+        }
+        for dt in TOPLINE_DATE_CUTOFFS
+    }
 
 
 for run in tqdm(runs[:50]):  # most recent
@@ -85,25 +96,27 @@ for run in tqdm(runs[:50]):  # most recent
             ))
         interval_hrs.append(hr)
     if PLOT_TOPLINES_ONLY:
-        need_extend_by = len(interval_paces) - len(topline_paces)
-        if need_extend_by > 0:
-            topline_paces = np.append(
-                topline_paces,
-                # todo :: ew. I'm doing silliness here, aren't I?
-                # (should store all as float then convert at the end for plot)
-                [datetime.datetime.fromtimestamp(99999)] * need_extend_by,
+        for datetime_cutoff, data in topline_values.items():
+            # todo :: need datetime in the run, eh? :)
+            need_extend_by = len(interval_paces) - len(data["paces"])
+            if need_extend_by > 0:
+                data["paces"] = np.append(
+                    data["paces"],
+                    # todo :: ew. I'm doing silliness here, aren't I?
+                    # (should store all as float then convert at the end for plot)
+                    [datetime.datetime.fromtimestamp(99999)] * need_extend_by,
+                )
+                data["hrs"] = np.append(data["hrs"], [0] * need_extend_by)
+                data["intervals"] = intervals
+            # todo :: also kinda yucky code with this np array vs list business
+            interval_paces = np.append(
+                interval_paces,
+                [datetime.datetime.fromtimestamp(99999)] * max(-need_extend_by, 0)
             )
-            topline_hrs = np.append(topline_hrs, [0] * need_extend_by)
-            topline_intervals = intervals
-        # todo :: also kinda yucky code with this np array vs list business
-        interval_paces = np.append(
-            interval_paces,
-            [datetime.datetime.fromtimestamp(99999)] * max(-need_extend_by, 0)
-        )
-        interval_hrs = np.append(interval_hrs, [0] * max(-need_extend_by, 0))
-        where_update = interval_paces < topline_paces
-        topline_paces[where_update] = interval_paces[where_update]
-        topline_hrs[where_update] = interval_hrs[where_update]
+            interval_hrs = np.append(interval_hrs, [0] * max(-need_extend_by, 0))
+            where_update = interval_paces < data["paces"]
+            data["paces"][where_update] = interval_paces[where_update]
+            data["hrs"][where_update] = interval_hrs[where_update]
     if not PLOT_TOPLINES_ONLY:
         plt.plot(
             interval_hrs if JUST_PLOT_HRS else intervals,
@@ -119,17 +132,19 @@ for run in tqdm(runs[:50]):  # most recent
 
 
 if PLOT_TOPLINES_ONLY:
-    if not JUST_PLOT_HRS:
-        plt.plot(
-            topline_intervals,
-            topline_paces,
+    for datetime_cutoff, data in topline_values.items():
+        if not JUST_PLOT_HRS:
+            plt.plot(
+                data["intervals"],
+                data["paces"],
+            )
+        plt.scatter(
+            data["hrs"] if JUST_PLOT_HRS else data["intervals"],
+            data["paces"],
+            c=color_map(data["hrs"]),
+            s=20,
         )
-    plt.scatter(
-        topline_hrs if JUST_PLOT_HRS else topline_intervals,
-        topline_paces,
-        c=color_map(topline_hrs),
-        s=20,
-    )
+        break  # todo :: we don't actually use the datetime info yet.....
 
 
 color_scalar_mappable = plt.cm.ScalarMappable(
