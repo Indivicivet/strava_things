@@ -77,10 +77,13 @@ print(f"querying activites from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
 
 result = {}
 for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
-    activity_id = ids[idx]
+    activity_id = summaries[idx]["id"]
     tqdm.write(f"retrieving {activity_id}")
     try:
-        result[activity_id] = get_activity_streams(activity_id)
+        result[activity_id] = {
+            "metadata": summaries[idx],
+            "streams": get_activity_streams(activity_id),
+        }
     except RequestHadError as e:
         tqdm.write(f"hit error {e}")
         END_ACTIVITY_IDX = idx
