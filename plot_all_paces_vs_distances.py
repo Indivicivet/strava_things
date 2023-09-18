@@ -23,6 +23,8 @@ JUST_PLOT_HRS = False
 HR_MIN = 130
 HR_MAX = 200
 
+PLOT_TOPLINES_ONLY = True
+
 
 def hr_to_01(hr):
     return np.clip(
@@ -36,6 +38,13 @@ color_map_from_01 = matplotlib.cm.get_cmap("RdYlBu").reversed()
 
 def color_map(hr):
     return color_map_from_01(hr_to_01(hr))
+
+
+if PLOT_TOPLINES_ONLY:
+    print("plotting toplines only")
+    topline_paces = np.array([])
+    topline_hrs = np.array([])
+    topline_intervals = []
 
 
 for run in tqdm(runs[:50]):  # most recent
@@ -71,19 +80,54 @@ for run in tqdm(runs[:50]):  # most recent
                 7 * 60 * 1000 / interval  # 7min pace
             ))
         else:
-            interval_paces.append(datetime.datetime.utcfromtimestamp(
+            interval_paces.append(datetime.datetime.fromtimestamp(
                 shortest_time * 1000 / interval
             ))
         interval_hrs.append(hr)
-    plt.plot(
-        interval_hrs if JUST_PLOT_HRS else intervals,
-        interval_paces,
-        c=color_map(np.mean(interval_hrs, axis=0)),
-    )
+    if PLOT_TOPLINES_ONLY:
+        need_extend_by = len(interval_paces) - len(topline_paces)
+        if need_extend_by > 0:
+            topline_paces = np.append(
+                topline_paces,
+                # todo :: ew. I'm doing silliness here, aren't I?
+                # (should store all as float then convert at the end for plot)
+                [datetime.datetime.fromtimestamp(99999)] * need_extend_by,
+            )
+            topline_hrs = np.append(topline_hrs, [0] * need_extend_by)
+            topline_intervals = intervals
+        # todo :: also kinda yucky code with this np array vs list business
+        interval_paces = np.append(
+            interval_paces,
+            [datetime.datetime.fromtimestamp(99999)] * max(-need_extend_by, 0)
+        )
+        interval_hrs = np.append(interval_hrs, [0] * max(-need_extend_by, 0))
+        where_update = interval_paces < topline_paces
+        topline_paces[where_update] = interval_paces[where_update]
+        topline_hrs[where_update] = interval_hrs[where_update]
+    if not PLOT_TOPLINES_ONLY:
+        plt.plot(
+            interval_hrs if JUST_PLOT_HRS else intervals,
+            interval_paces,
+            c=color_map(np.mean(interval_hrs, axis=0)),
+        )
+        plt.scatter(
+            interval_hrs if JUST_PLOT_HRS else intervals,
+            interval_paces,
+            c=color_map(interval_hrs),
+            s=20,
+        )
+
+
+if PLOT_TOPLINES_ONLY:
+    if not JUST_PLOT_HRS:
+        plt.plot(
+            topline_intervals,
+            topline_paces,
+        )
     plt.scatter(
-        interval_hrs if JUST_PLOT_HRS else intervals,
-        interval_paces,
-        c=color_map(interval_hrs),
+        topline_hrs if JUST_PLOT_HRS else topline_intervals,
+        topline_paces,
+        c=color_map(topline_hrs),
         s=20,
     )
 
