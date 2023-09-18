@@ -97,7 +97,8 @@ for run in tqdm(runs[:50]):  # most recent
         interval_hrs.append(hr)
     if PLOT_TOPLINES_ONLY:
         for datetime_cutoff, data in topline_values.items():
-            # todo :: need datetime in the run, eh? :)
+            if run.date >= datetime_cutoff:
+                continue
             need_extend_by = len(interval_paces) - len(data["paces"])
             if need_extend_by > 0:
                 data["paces"] = np.append(
@@ -133,6 +134,11 @@ for run in tqdm(runs[:50]):  # most recent
 
 if PLOT_TOPLINES_ONLY:
     for datetime_cutoff, data in topline_values.items():
+        if len(data["paces"]) > len(data["intervals"]):
+            # todo :: idk why this is needed;
+            # hrs and paces seem consistent but intervals not; bad code.
+            data["paces"] = data["paces"][:len(data["intervals"])]
+            data["hrs"] = data["hrs"][:len(data["intervals"])]
         if not JUST_PLOT_HRS:
             plt.plot(
                 data["intervals"],
@@ -144,7 +150,6 @@ if PLOT_TOPLINES_ONLY:
             c=color_map(data["hrs"]),
             s=20,
         )
-        break  # todo :: we don't actually use the datetime info yet.....
 
 
 color_scalar_mappable = plt.cm.ScalarMappable(
