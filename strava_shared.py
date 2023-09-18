@@ -1,3 +1,4 @@
+import datetime
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional
@@ -16,6 +17,7 @@ class Run:
     cadence: list
     heartrate: Optional[list] = None
     latlng: Optional[list] = None
+    date: Optional[datetime.datetime] = None
 
 
 def load_runs(require_cadences=True):
@@ -66,6 +68,13 @@ def load_runs(require_cadences=True):
                     ),
                     heartrate=this_hrs,
                     latlng=this_latlng,
+                    date=datetime.datetime(
+                        # todo :: should parse out the whole thing really eh?
+                        *map(
+                            int,
+                            info["metadata"]["start_date"].split("T")[0].split("-"),
+                        )
+                    ),
                 )
             )
         else:
