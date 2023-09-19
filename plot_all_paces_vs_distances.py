@@ -137,8 +137,9 @@ if PLOT_TOPLINES_ONLY:
         if len(data["paces"]) > len(data["intervals"]):
             # todo :: idk why this is needed;
             # hrs and paces seem consistent but intervals not; bad code.
-            data["paces"] = data["paces"][:len(data["intervals"])]
-            data["hrs"] = data["hrs"][:len(data["intervals"])]
+            data["intervals"] = (2 + np.arange(len(data["paces"]))) * (
+                PLOT_DISTANCE_INTERVAL
+            )
         if not JUST_PLOT_HRS:
             plt.plot(
                 data["intervals"],
