@@ -86,6 +86,8 @@ for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
         }
     except (RequestHadError, IndexError) as e:
         tqdm.write(f"hit error {e}")
+        if isinstance(e, IndexError):
+            tqdm.write("(probably you've got all activities!? nice!)")
         END_ACTIVITY_IDX = idx
         break
 
