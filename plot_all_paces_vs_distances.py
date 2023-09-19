@@ -76,6 +76,8 @@ for run in tqdm(runs[:50]):  # most recent
                 int((latter_d - start_d) / PLOT_DISTANCE_INTERVAL)
                 - START_DISTANCE_IDX
             )
+            if arr_idx < 0:
+                continue
             if interval_time < shortest_times[arr_idx]:
                 shortest_times[arr_idx] = interval_time
                 if run.heartrate is not None:
