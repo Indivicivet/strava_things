@@ -91,6 +91,9 @@ for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
         END_ACTIVITY_IDX = idx
         break
 
-(
-    MY_DATA_FOLDER / f"activities_{START_ACTIVITY_IDX}_to_{END_ACTIVITY_IDX}.json"
-).write_text(json.dumps(result))
+out_file = (
+    MY_DATA_FOLDER
+    / f"activities_{START_ACTIVITY_IDX}_to_{END_ACTIVITY_IDX}.json"
+)
+out_file.write_text(json.dumps(result))
+print(f"saved out data to {out_file}")
