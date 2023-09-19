@@ -48,25 +48,13 @@ def color_map(hr):
     return color_map_from_01(hr_to_01(hr))
 
 
-if PLOT_TOPLINES_ONLY:
-    print("plotting toplines only")
-    topline_values = {
-        dt: {
-            "paces": np.array([]),
-            "hrs": np.array([]),
-            "intervals": [],
-        }
-        for dt in TOPLINE_DATE_CUTOFFS
-    }
-
-
 START_DISTANCE_IDX = 2
 
 
 @dataclass
 class IntervalStatistics:
-    times: list[float]
-    hrs: list[float]
+    times: np.ndarray
+    hrs: np.ndarray
     interval_length: int = PLOT_DISTANCE_INTERVAL  # todo :: could be float...?
     start_idx: int = START_DISTANCE_IDX
 
@@ -87,9 +75,17 @@ class IntervalStatistics:
         # todo :: this using cls.defaults is probably bad??
         n_length = math.ceil(run_length / cls.interval_length) - cls.start_idx
         return cls(
-            times=[9999] * n_length,
-            hrs=[100] * n_length,
+            times=np.full(n_length, fill_value=9999),
+            hrs=np.full(n_length, fill_value=100),
         )
+
+
+if PLOT_TOPLINES_ONLY:
+    print("plotting toplines only")
+    topline_stats = {
+        cutoff: IntervalStatistics(times=np.array([]), hrs=np.array([]))
+        for cutoff in TOPLINE_DATE_CUTOFFS
+    }
 
 
 for run in tqdm(runs[:999]):  # most recent
@@ -111,61 +107,54 @@ for run in tqdm(runs[:999]):  # most recent
                     best_stats.hrs[arr_idx] = sum(
                         run.heartrate[start_i:latter_i]
                     ) / (latter_i - start_i)
-    interval_paces = best_stats.get_pace_datetimes()
     if PLOT_TOPLINES_ONLY:
-        for datetime_cutoff, data in topline_values.items():
+        for datetime_cutoff, timespan_stats in topline_stats.items():
             if run.date >= datetime_cutoff:
                 continue
-            need_extend_by = len(interval_paces) - len(data["paces"])
+            need_extend_by = len(best_stats.times) - len(timespan_stats.times)
             if need_extend_by > 0:
-                data["paces"] = np.append(
-                    data["paces"],
-                    # todo :: ew. I'm doing silliness here, aren't I?
-                    # (should store all as float then convert at the end for plot)
-                    [datetime.datetime.fromtimestamp(99999)] * need_extend_by,
+                timespan_stats.times = np.append(
+                    timespan_stats.times,
+                    [99999] * need_extend_by,
                 )
-                data["hrs"] = np.append(data["hrs"], [0] * need_extend_by)
-                data["intervals"] = best_stats.intervals
+                timespan_stats.hrs = np.append(timespan_stats.hrs, [0] * need_extend_by)
             # todo :: also kinda yucky code with this np array vs list business
-            interval_paces = np.append(
-                interval_paces,
-                [datetime.datetime.fromtimestamp(99999)] * max(-need_extend_by, 0)
+            timespan_stats.times = np.append(
+                timespan_stats.times, [99999] * max(-need_extend_by, 0)
             )
-            interval_hrs = np.append(best_stats.hrs, [0] * max(-need_extend_by, 0))
-            where_update = interval_paces < data["paces"]
-            data["paces"][where_update] = interval_paces[where_update]
-            data["hrs"][where_update] = interval_hrs[where_update]
+            timespan_stats.hrs = np.append(
+                timespan_stats.hrs, [0] * max(-need_extend_by, 0)
+            )
+            where_update = best_stats.times < timespan_stats.times
+            timespan_stats.times[where_update] = best_stats.times[where_update]
+            timespan_stats.hrs[where_update] = best_stats.hrs[where_update]
     if not PLOT_TOPLINES_ONLY:
+        paces = best_stats.get_pace_datetimes()
         plt.plot(
             best_stats.hrs if JUST_PLOT_HRS else best_stats.intervals,
-            interval_paces,
+            paces,
             c=color_map(np.mean(best_stats.hrs, axis=0)),
         )
         plt.scatter(
             best_stats.hrs if JUST_PLOT_HRS else best_stats.intervals,
-            interval_paces,
+            paces,
             c=color_map(best_stats.hrs),
             s=20,
         )
 
 
 if PLOT_TOPLINES_ONLY:
-    for datetime_cutoff, data in topline_values.items():
-        if len(data["paces"]) > len(data["intervals"]):
-            # todo :: idk why this is needed;
-            # hrs and paces seem consistent but intervals not; bad code.
-            data["intervals"] = (2 + np.arange(len(data["paces"]))) * (
-                PLOT_DISTANCE_INTERVAL
-            )
+    for datetime_cutoff, timespan_stats in topline_stats.items():
+        paces = timespan_stats.get_pace_datetimes
         if not JUST_PLOT_HRS:
             plt.plot(
-                data["intervals"],
-                data["paces"],
+                timespan_stats.intervals,
+                paces,
             )
         plt.scatter(
-            data["hrs"] if JUST_PLOT_HRS else data["intervals"],
-            data["paces"],
-            c=color_map(data["hrs"]),
+            timespan_stats.hrs if JUST_PLOT_HRS else timespan_stats.intervals,
+            paces,
+            c=color_map(timespan_stats.hrs),
             s=20,
             label=f"before {datetime_cutoff}",
         )
