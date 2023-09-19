@@ -13,7 +13,7 @@ import strava_shared
 seaborn.set()
 plt.style.use("dark_background")
 
-runs = strava_shared.load_runs()
+runs = strava_shared.load_runs(require_cadences=False)
 
 #max_distance = max(run.distance[-1] for run in runs)
 PLOT_DISTANCE_INTERVAL = 100
