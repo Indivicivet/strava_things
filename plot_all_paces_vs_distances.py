@@ -58,43 +58,36 @@ if PLOT_TOPLINES_ONLY:
     }
 
 
+START_DISTANCE_IDX = 2
 for run in tqdm(runs[:50]):  # most recent
     intervals = range(
-        PLOT_DISTANCE_INTERVAL * 2,
-        int(run.distance[-1]),
+        PLOT_DISTANCE_INTERVAL * START_DISTANCE_IDX,
+        int(run.distance[-1]) + 1,
         PLOT_DISTANCE_INTERVAL,
     )
-    interval_paces = []
-    interval_hrs = []
-    for interval in intervals:
-        shortest_time = 9999
-        hr = 100
-        for start_i, start_d in enumerate(run.distance):
-            delta_i = None
-            try:
-                delta_i = max(next(
-                    i
-                    for i, d in enumerate(run.distance[start_i + 1:])
-                    if (d - start_d) > interval
-                ), 1)  # todo :: hacky way to avoid 0?
-            except StopIteration:
-                break
-            else:
-                interval_time = run.time[start_i + delta_i] - run.time[start_i]
-                if interval_time < shortest_time:
-                    shortest_time = interval_time
-                    if run.heartrate is not None:
-                        hr = sum(run.heartrate[start_i:][:delta_i]) / delta_i
-        if shortest_time == 0:
-            print(f"shortest_time is zero!?")
-            interval_paces.append(datetime.datetime.fromtimestamp(
-                7 * 60 * 1000 / interval  # 7min pace
-            ))
-        else:
-            interval_paces.append(datetime.datetime.fromtimestamp(
-                shortest_time * 1000 / interval
-            ))
-        interval_hrs.append(hr)
+    shortest_times = [9999] * len(intervals)
+    shortest_time_hrs = [100] * len(intervals)
+    for start_i, start_d in enumerate(run.distance):
+        for latter_i, latter_d in enumerate(run.distance):
+            if latter_i <= start_i:
+                continue  # easiest way to code it up. probs not 2slow.
+            interval_time = run.time[latter_i] - run.time[start_i]
+            arr_idx = (
+                int((latter_d - start_d) / PLOT_DISTANCE_INTERVAL)
+                - START_DISTANCE_IDX
+            )
+            if interval_time < shortest_times[arr_idx]:
+                shortest_times[arr_idx] = interval_time
+                if run.heartrate is not None:
+                    shortest_time_hrs[arr_idx] = sum(
+                        run.heartrate[start_i:latter_i]
+                    ) / (latter_i - start_i)
+    interval_paces = [
+        datetime.datetime.fromtimestamp(
+            shortest_time * 1000 / interval
+        )
+        for interval, shortest_time in zip(intervals, shortest_times)
+    ]
     if PLOT_TOPLINES_ONLY:
         for datetime_cutoff, data in topline_values.items():
             if run.date >= datetime_cutoff:
@@ -114,20 +107,20 @@ for run in tqdm(runs[:50]):  # most recent
                 interval_paces,
                 [datetime.datetime.fromtimestamp(99999)] * max(-need_extend_by, 0)
             )
-            interval_hrs = np.append(interval_hrs, [0] * max(-need_extend_by, 0))
+            interval_hrs = np.append(shortest_time_hrs, [0] * max(-need_extend_by, 0))
             where_update = interval_paces < data["paces"]
             data["paces"][where_update] = interval_paces[where_update]
             data["hrs"][where_update] = interval_hrs[where_update]
     if not PLOT_TOPLINES_ONLY:
         plt.plot(
-            interval_hrs if JUST_PLOT_HRS else intervals,
+            shortest_time_hrs if JUST_PLOT_HRS else intervals,
             interval_paces,
-            c=color_map(np.mean(interval_hrs, axis=0)),
+            c=color_map(np.mean(shortest_time_hrs, axis=0)),
         )
         plt.scatter(
-            interval_hrs if JUST_PLOT_HRS else intervals,
+            shortest_time_hrs if JUST_PLOT_HRS else intervals,
             interval_paces,
-            c=color_map(interval_hrs),
+            c=color_map(shortest_time_hrs),
             s=20,
         )
 
