@@ -149,7 +149,9 @@ if PLOT_TOPLINES_ONLY:
             data["paces"],
             c=color_map(data["hrs"]),
             s=20,
+            label=f"before {datetime_cutoff}",
         )
+        plt.legend()
 
 
 color_scalar_mappable = plt.cm.ScalarMappable(
