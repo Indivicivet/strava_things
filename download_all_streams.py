@@ -70,21 +70,21 @@ print(ids)
 print()
 
 
-START_ACTIVITY_IDX = 0
+START_ACTIVITY_IDX = 180
 END_ACTIVITY_IDX = START_ACTIVITY_IDX + STRAVA_RATE_CAP - 10  # wiggle room
 
 print(f"querying activites from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
 
 result = {}
 for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
-    activity_id = summaries[idx]["id"]
-    tqdm.write(f"retrieving {activity_id}")
     try:
+        activity_id = summaries[idx]["id"]
+        tqdm.write(f"retrieving {activity_id}")
         result[activity_id] = {
             "metadata": summaries[idx],
             "streams": get_activity_streams(activity_id),
         }
-    except RequestHadError as e:
+    except (RequestHadError, IndexError) as e:
         tqdm.write(f"hit error {e}")
         END_ACTIVITY_IDX = idx
         break
