@@ -84,6 +84,33 @@ class IntervalStatistics:
             hrs=np.full(n_length, fill_value=100),
         )
 
+    def update_with(self, other_stats):  # intervalstatistics^2->intervalstats
+        # todo :: maybe not the nicest...
+        result = type(self)(
+            times=self.times,
+            hrs=self.hrs,
+            interval_length=self.interval_length,
+            start_idx=self.start_idx,
+        )
+        need_extend_by = len(other_stats.times) - len(result.times)
+        if need_extend_by > 0:
+            result.times = np.append(
+                result.times,
+                [99999] * need_extend_by,
+            )
+            result.hrs = np.append(result.hrs, [0] * need_extend_by)
+        # todo :: also kinda yucky code with this np array vs list business
+        other_times = np.append(
+            other_stats.times, [99999] * max(-need_extend_by, 0)
+        )
+        other_hrs = np.append(
+            other_stats.hrs, [0] * max(-need_extend_by, 0)
+        )
+        where_update = other_times < result.times
+        result.times[where_update] = other_times[where_update]
+        result.hrs[where_update] = other_hrs[where_update]
+        return result
+
 
 if PLOT_TOPLINES_ONLY:
     print("plotting toplines only")
@@ -116,23 +143,9 @@ for run in tqdm(runs[:999]):  # most recent
         for datetime_cutoff, timespan_stats in topline_stats.items():
             if run.date >= datetime_cutoff:
                 continue
-            need_extend_by = len(best_stats.times) - len(timespan_stats.times)
-            if need_extend_by > 0:
-                timespan_stats.times = np.append(
-                    timespan_stats.times,
-                    [99999] * need_extend_by,
-                )
-                timespan_stats.hrs = np.append(timespan_stats.hrs, [0] * need_extend_by)
-            # todo :: also kinda yucky code with this np array vs list business
-            timespan_stats.times = np.append(
-                timespan_stats.times, [99999] * max(-need_extend_by, 0)
+            topline_stats[datetime_cutoff] = timespan_stats.update_with(
+                best_stats
             )
-            timespan_stats.hrs = np.append(
-                timespan_stats.hrs, [0] * max(-need_extend_by, 0)
-            )
-            where_update = best_stats.times < timespan_stats.times
-            timespan_stats.times[where_update] = best_stats.times[where_update]
-            timespan_stats.hrs[where_update] = best_stats.hrs[where_update]
     if not PLOT_TOPLINES_ONLY:
         paces = best_stats.get_pace_datetimes()
         plt.plot(
