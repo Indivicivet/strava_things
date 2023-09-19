@@ -163,7 +163,7 @@ for run in tqdm(runs[:999]):  # most recent
 
 if PLOT_TOPLINES_ONLY:
     for datetime_cutoff, timespan_stats in topline_stats.items():
-        paces = timespan_stats.get_pace_datetimes
+        paces = timespan_stats.get_pace_datetimes()
         if not JUST_PLOT_HRS:
             plt.plot(
                 timespan_stats.intervals,
