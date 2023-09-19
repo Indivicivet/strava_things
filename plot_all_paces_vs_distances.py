@@ -58,6 +58,11 @@ class IntervalStatistics:
     interval_length: int = PLOT_DISTANCE_INTERVAL  # todo :: could be float...?
     start_idx: int = START_DISTANCE_IDX
 
+    def __post_init__(self):
+        assert len(self.times) == len(self.hrs), (
+            f"{len(self.times)=} != {len(self.hrs)=}"
+        )
+
     @property
     def intervals(self):
         return (
