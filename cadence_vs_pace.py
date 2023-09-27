@@ -22,6 +22,7 @@ def my_smooth(data, smooth_length=30):
 plot_runs = runs[:5]
 
 
+plt.figure(figsize=(12.8, 7.2))
 for run in plot_runs:
     smooth_vel = my_smooth(run.velocity)
     smooth_cadence = my_smooth(run.cadence)
