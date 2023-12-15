@@ -88,12 +88,12 @@ for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
         tqdm.write(f"hit error {e}")
         if isinstance(e, IndexError):
             tqdm.write("(probably you've got all activities!? nice!)")
-        END_ACTIVITY_IDX = idx
+        # END_ACTIVITY_IDX = idx
         break
-
-out_file = (
-    MY_DATA_FOLDER
-    / f"activities_{START_ACTIVITY_IDX}_to_{END_ACTIVITY_IDX}.json"
-)
-out_file.write_text(json.dumps(result))
-print(f"saved out data to {out_file}")
+    else:
+        out_file = (
+            MY_DATA_FOLDER
+            / f"activity_{activity_id}.json"
+        )
+        out_file.write_text(json.dumps(result[activity_id]))
+        print(f"saved out data to {out_file}")
