@@ -131,7 +131,9 @@ for run in tqdm(runs[:999]):  # most recent
                 int((latter_d - start_d) / PLOT_DISTANCE_INTERVAL)
                 - START_DISTANCE_IDX
             )
-            if arr_idx < 0:
+            # todo :: not sure how the arr_idx == len(best_stats.times)
+            # comes about; might be fine, or might be making arrs of bad length
+            if arr_idx < 0 or arr_idx >= len(best_stats.times):
                 continue
             if interval_time < best_stats.times[arr_idx]:
                 best_stats.times[arr_idx] = interval_time
