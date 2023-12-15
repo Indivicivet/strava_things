@@ -22,12 +22,11 @@ class Run:
 
 def load_runs(require_cadences=True):
     all_data = {
-        activity_id: data
+        p.stem: json.loads(p.read_text())
         for p in MY_DATA_FOLDER.glob("*.json")
-        for activity_id, data in json.loads(p.read_text()).items()
     }
     runs = []
-    for activity_id, info in all_data.items():
+    for activity_name, info in all_data.items():
         this_velocities = None
         this_distances = None
         this_times = None
@@ -56,7 +55,7 @@ def load_runs(require_cadences=True):
         ):
             runs.append(
                 Run(
-                    activity_id=activity_id,
+                    activity_id=activity_name.split("_")[1],
                     velocity=this_velocities,
                     distance=this_distances,
                     time=this_times,
@@ -78,5 +77,5 @@ def load_runs(require_cadences=True):
                 )
             )
         else:
-            print(f"got a run missing things, {activity_id=}")
+            print(f"got a run missing things, {activity_name=}")
     return runs
