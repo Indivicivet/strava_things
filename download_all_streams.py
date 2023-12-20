@@ -88,6 +88,9 @@ for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
         tqdm.write(f"hit error {e}")
         if isinstance(e, IndexError):
             tqdm.write("(probably you've got all activities!? nice!)")
+        if isinstance(e, RequestHadError) and "Resource Not Found" in str(e):
+            tqdm.write('"Resource Not Found", maybe treadmill? CONTINUING!')
+            continue
         # END_ACTIVITY_IDX = idx
         break
     else:
