@@ -10,6 +10,7 @@ seaborn.set()
 runs = strava_shared.load_runs()
 
 PLOT_STRIDE_LENGTH = False
+PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
 HIGHLIGHT_RUN = "latest"
 
 
@@ -25,11 +26,15 @@ plot_runs = runs[:50]
 
 plt.figure(figsize=(12.8, 7.2))
 for i, run in enumerate(plot_runs):
+    if PLOT_HEART_RATE and not run.heartrate:
+        continue
     smooth_vel = my_smooth(run.velocity)
     smooth_cadence = my_smooth(run.cadence)
     plot_y_vals = (
         smooth_vel / (smooth_cadence / 60)
         if PLOT_STRIDE_LENGTH
+        else my_smooth(run.heartrate)
+        if PLOT_HEART_RATE
         else smooth_cadence
     )
     plt.scatter(
@@ -47,5 +52,11 @@ for i, run in enumerate(plot_runs):
         )
 
 plt.xlabel("velocity")
-plt.ylabel("stride length" if PLOT_STRIDE_LENGTH else "cadence")
+plt.ylabel(
+    "stride length"
+    if PLOT_STRIDE_LENGTH
+    else "heart rate"
+    if PLOT_HEART_RATE
+    else "cadence"
+)
 plt.show()
