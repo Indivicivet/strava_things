@@ -19,7 +19,7 @@ def my_smooth(data, smooth_length=30):
     ])
 
 
-plot_runs = runs[:5]
+plot_runs = runs[:50]
 
 
 plt.figure(figsize=(12.8, 7.2))
