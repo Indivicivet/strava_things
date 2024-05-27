@@ -77,8 +77,15 @@ print(f"querying activites from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
 
 result = {}
 for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
+    activity_id = summaries[idx]["id"]
+    out_file = (
+            MY_DATA_FOLDER
+            / f"activity_{activity_id}.json"
+    )
+    if out_file.exists():
+        print(f"{out_file} (id {activity_id}) exists, skipping")
+        continue
     try:
-        activity_id = summaries[idx]["id"]
         # todo :: skip already downloaded
         tqdm.write(f"retrieving {activity_id}")
         result[activity_id] = {
@@ -87,17 +94,12 @@ for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
         }
     except (RequestHadError, IndexError) as e:
         tqdm.write(f"hit error {e}")
-        if isinstance(e, IndexError):
-            tqdm.write("(probably you've got all activities!? nice!)")
         if isinstance(e, RequestHadError) and "Resource Not Found" in str(e):
             tqdm.write('"Resource Not Found", maybe treadmill? CONTINUING!')
             continue
+        if isinstance(e, IndexError):
+            tqdm.write("(probably you've got all activities!? nice!)")
         # END_ACTIVITY_IDX = idx
         break
-    else:
-        out_file = (
-            MY_DATA_FOLDER
-            / f"activity_{activity_id}.json"
-        )
-        out_file.write_text(json.dumps(result[activity_id]))
-        print(f"saved out data to {out_file}")
+    out_file.write_text(json.dumps(result[activity_id]))
+    print(f"saved out data to {out_file}")
