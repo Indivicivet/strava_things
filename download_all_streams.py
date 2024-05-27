@@ -79,6 +79,7 @@ result = {}
 for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
     try:
         activity_id = summaries[idx]["id"]
+        # todo :: skip already downloaded
         tqdm.write(f"retrieving {activity_id}")
         result[activity_id] = {
             "metadata": summaries[idx],
