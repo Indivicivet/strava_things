@@ -52,14 +52,18 @@ def get_activity_streams(activity_id):
     )
 
 
-def get_activity_summaries():
+def get_activity_summaries(page=1):
     return v3_api_call(
         f"athlete/activities?before={int(time.time())}"
-        f"&after=964796319&per_page=200",
+        f"&{page=}&per_page=200",
     )
 
 
-summaries = get_activity_summaries()
+summaries = [
+    x
+    for pg in [1, 2, 3, 4]
+    for x in get_activity_summaries(page=pg)
+]
 print("summaries:")
 print(summaries)
 print()
