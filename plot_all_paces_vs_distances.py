@@ -172,12 +172,13 @@ if PLOT_TOPLINES_ONLY:
                 timespan_stats.intervals,
                 paces,
             )
+        extra_kwargs = {"c": color_map(timespan_stats.hrs)} if JUST_PLOT_HRS else None
         plt.scatter(
             timespan_stats.hrs if JUST_PLOT_HRS else timespan_stats.intervals,
             paces,
-            c=color_map(timespan_stats.hrs),
             s=20,
             label=f"before {datetime_cutoff}",
+            **extra_kwargs,
         )
         plt.legend()
 
