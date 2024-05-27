@@ -12,6 +12,7 @@ ACCESS_TOKEN = (
 MY_DATA_FOLDER = Path(__file__).parent / "my_data"
 MY_DATA_FOLDER.mkdir(exist_ok=True, parents=True)
 STRAVA_RATE_CAP = 100  # actually 100; play safe for testing
+MAX_PAGE = 4  # burn this many API calls each time; 200 activities per page
 
 
 class RequestHadError(Exception):
@@ -61,7 +62,7 @@ def get_activity_summaries(page=1):
 
 summaries = [
     x
-    for pg in [1, 2, 3, 4]
+    for pg in range (1, MAX_PAGE + 1)
     for x in get_activity_summaries(page=pg)
 ]
 print("summaries:")
