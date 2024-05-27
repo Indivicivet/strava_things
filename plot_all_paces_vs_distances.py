@@ -172,7 +172,7 @@ if PLOT_TOPLINES_ONLY:
                 timespan_stats.intervals,
                 paces,
             )
-        extra_kwargs = {"c": color_map(timespan_stats.hrs)} if JUST_PLOT_HRS else None
+        extra_kwargs = {"c": color_map(timespan_stats.hrs)} if JUST_PLOT_HRS else {}
         plt.scatter(
             timespan_stats.hrs if JUST_PLOT_HRS else timespan_stats.intervals,
             paces,
