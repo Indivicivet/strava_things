@@ -28,6 +28,7 @@ HR_MAX = 200
 PLOT_TOPLINES_ONLY = False
 TOPLINE_DATE_CUTOFFS = [
     datetime.datetime(3000, 1, 1),
+    datetime.datetime(2024, 1, 1),
     datetime.datetime(2023, 7, 1),
     datetime.datetime(2023, 1, 1),
     datetime.datetime(2022, 7, 1),
