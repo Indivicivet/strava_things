@@ -91,7 +91,6 @@ for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
         print(f"{out_file} (id {activity_id}) exists, skipping")
         continue
     try:
-        # todo :: skip already downloaded
         tqdm.write(f"retrieving {activity_id}")
         result[activity_id] = {
             "metadata": summaries[idx],
