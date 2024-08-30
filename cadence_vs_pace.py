@@ -37,12 +37,21 @@ for i, run in enumerate(plot_runs[::-1]):
         if PLOT_HEART_RATE
         else smooth_cadence
     )
+    is_latest_run = i == len(plot_runs) - 1
     plt.scatter(
         smooth_vel,
         plot_y_vals,
         # color=matplotlib.cm.get_cmap("PiYG").reversed()(run.distance[-1] / 30000),
-        color=("red" if i == 0 else "black") if HIGHLIGHT_RUN == "latest" else None,
-        alpha=(1 if i ==0 else 0.05) if HIGHLIGHT_RUN == "latest" else 0.1,
+        color=(
+            ("red" if is_latest_run else "black")
+            if HIGHLIGHT_RUN == "latest"
+            else None
+        ),
+        alpha=(
+            (1 if is_latest_run else 0.03)
+            if HIGHLIGHT_RUN == "latest"
+            else 0.01
+        ),
         s=3,
     )
     if len(plot_runs) <= 5:
