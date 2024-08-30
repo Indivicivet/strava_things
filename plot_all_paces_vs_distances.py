@@ -25,7 +25,7 @@ JUST_PLOT_HRS = False
 HR_MIN = 130
 HR_MAX = 200
 
-PLOT_TOPLINES_ONLY = False
+PLOT_TOPLINES_ONLY = True
 TOPLINE_DATE_CUTOFFS = [
     datetime.datetime(3000, 1, 1),
     datetime.datetime(2024, 1, 1),

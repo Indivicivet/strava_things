@@ -25,7 +25,7 @@ plot_runs = runs[:50]
 
 
 plt.figure(figsize=(12.8, 7.2))
-for i, run in enumerate(plot_runs):
+for i, run in enumerate(plot_runs[::-1]):
     if PLOT_HEART_RATE and not run.heartrate:
         continue
     smooth_vel = my_smooth(run.velocity)
