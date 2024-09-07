@@ -14,7 +14,7 @@ PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
 HIGHLIGHT_RUN = "latest"
 
 
-def my_smooth(data, smooth_length=30):
+def my_smooth(data, smooth_length=10):
     return np.array([
         np.mean(data[i:i+smooth_length])
         for i in range(len(data) - smooth_length)
