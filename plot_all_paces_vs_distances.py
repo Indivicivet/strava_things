@@ -183,12 +183,14 @@ if PLOT_TOPLINES_ONLY:
         plt.legend()
 
 
-color_scalar_mappable = plt.cm.ScalarMappable(
-    cmap=color_map_from_01,
-    norm=plt.Normalize(vmin=HR_MIN, vmax=HR_MAX),
-)
-color_scalar_mappable.set_array([])  # Empty array since we only need the colormap
-cbar = plt.colorbar(color_scalar_mappable)
+if not PLOT_TOPLINES_ONLY:
+    # toplines are colour coded by date, rather than HR, so only plot this if not that.
+    color_scalar_mappable = plt.cm.ScalarMappable(
+        cmap=color_map_from_01,
+        norm=plt.Normalize(vmin=HR_MIN, vmax=HR_MAX),
+    )
+    color_scalar_mappable.set_array([])  # Empty array since we only need the colormap
+    cbar = plt.colorbar(color_scalar_mappable)
 
 
 #plt.xscale("log")
