@@ -75,4 +75,10 @@ def load_runs(require_cadences=True):
                 ),
             )
         )
+    for p in MY_DATA_FOLDER.glob("*.gpx"):
+        print(f"skipping gpx {p}; todo :: implement")
+        continue  # todo :: implement :)
+        runs.append(
+            activity_id=p.stem.split("_")[1],
+        )
     return runs
