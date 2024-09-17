@@ -89,16 +89,14 @@ def load_runs(require_cadences=True):
             Run(
                 activity_id=p.stem.split("_")[1],
                 velocity=None,  # todo
-                distance=[
-                    (point.latitude, point.longitude)
-                    for point in segment.points
-                ],
+                distance=None,  # todo
                 time=[point.time for point in segment.points],
                 # cadences are in cycles/min, I want spm
                 cadence=[
                     2 * int(point.extensions[0].getchildren()[1].text)
                     for point in segment.points
                 ],
+                # todo :: these could probs do with being more robust
                 heartrate=[
                     int(point.extensions[0].getchildren()[0].text)
                     for point in segment.points
