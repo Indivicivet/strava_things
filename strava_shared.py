@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 import json
 
+import gpxpy
 
 MY_DATA_FOLDER = Path(__file__).parent / "my_data"
 
@@ -76,9 +77,37 @@ def load_runs(require_cadences=True):
             )
         )
     for p in MY_DATA_FOLDER.glob("*.gpx"):
-        print(f"skipping gpx {p}; todo :: implement")
-        continue  # todo :: implement :)
+        with open(p) as f:
+            gpx = gpxpy.parse(f)
+        if len(gpx.tracks) > 1:
+            print(f"{len(gpx.tracks)=} > 1, only using first")
+        track = gpx.tracks[0]
+        if len(track.segments) > 1:
+            print(f"{len(track.segments)=} > 1, only using first")
+        segment = track.segments[0]
         runs.append(
-            activity_id=p.stem.split("_")[1],
+            Run(
+                activity_id=p.stem.split("_")[1],
+                velocity=None,  # todo
+                distance=[
+                    (point.latitude, point.longitude)
+                    for point in segment.points
+                ],
+                time=[point.time for point in segment.points],
+                # cadences are in cycles/min, I want spm
+                cadence=[
+                    2 * int(point.extensions[0].getchildren()[1].text)
+                    for point in segment.points
+                ],
+                heartrate=[
+                    int(point.extensions[0].getchildren()[0].text)
+                    for point in segment.points
+                ],
+                latlng=[
+                    (point.latitude, point.longitude)
+                    for point in segment.points
+                ],
+                date=gpx.time,
+            ),
         )
     return runs
