@@ -21,12 +21,9 @@ class Run:
 
 
 def load_runs(require_cadences=True):
-    all_data = {
-        p.stem: json.loads(p.read_text())
-        for p in MY_DATA_FOLDER.glob("*.json")
-    }
     runs = []
-    for activity_name, info in all_data.items():
+    for p in MY_DATA_FOLDER.glob("*.json"):
+        info = json.loads(p.read_text())
         this_velocities = None
         this_distances = None
         this_times = None
@@ -48,34 +45,34 @@ def load_runs(require_cadences=True):
             if retrieved["type"] == "latlng":
                 this_latlng = retrieved["data"]
         if (
-            this_distances is not None
-            and this_velocities is not None
-            and this_times is not None
-            and (this_cadences is not None or not require_cadences)
+            this_distances is None
+            or this_velocities is None
+            or this_times is None
+            or (this_cadences is None and require_cadences)
         ):
-            runs.append(
-                Run(
-                    activity_id=activity_name.split("_")[1],
-                    velocity=this_velocities,
-                    distance=this_distances,
-                    time=this_times,
-                    # cadences are in cycles/min, I want spm
-                    cadence=(
-                        [2 * c for c in this_cadences]
-                        if this_cadences is not None
-                        else None
-                    ),
-                    heartrate=this_hrs,
-                    latlng=this_latlng,
-                    date=datetime.datetime(
-                        # todo :: should parse out the whole thing really eh?
-                        *map(
-                            int,
-                            info["metadata"]["start_date"].split("T")[0].split("-"),
-                        )
-                    ),
-                )
+            print(f"got a run missing things, {p.stem=}, {require_cadences=}")
+            continue
+        runs.append(
+            Run(
+                activity_id=p.stem.split("_")[1],
+                velocity=this_velocities,
+                distance=this_distances,
+                time=this_times,
+                # cadences are in cycles/min, I want spm
+                cadence=(
+                    [2 * c for c in this_cadences]
+                    if this_cadences is not None
+                    else None
+                ),
+                heartrate=this_hrs,
+                latlng=this_latlng,
+                date=datetime.datetime(
+                    # todo :: should parse out the whole thing really eh?
+                    *map(
+                        int,
+                        info["metadata"]["start_date"].split("T")[0].split("-"),
+                    )
+                ),
             )
-        else:
-            print(f"got a run missing things, {activity_name=}")
+        )
     return runs
