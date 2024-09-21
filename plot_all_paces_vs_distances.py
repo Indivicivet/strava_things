@@ -138,6 +138,8 @@ for run in tqdm(runs[:999]):  # most recent
             # comes about; might be fine, or might be making arrs of bad length
             if arr_idx < 0 or arr_idx >= len(best_stats.times):
                 continue
+            if isinstance(interval_time, datetime.timedelta):
+                interval_time = interval_time.total_seconds()
             if interval_time < best_stats.times[arr_idx]:
                 best_stats.times[arr_idx] = interval_time
                 if run.heartrate is not None:
