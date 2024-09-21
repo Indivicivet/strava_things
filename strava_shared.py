@@ -108,4 +108,4 @@ def load_runs(require_cadences=True):
                 date=gpx.time,
             ),
         )
-    return runs
+    return sorted(runs, key=lambda r: r.date, reverse=True)
