@@ -80,6 +80,8 @@ class IntervalStatistics:
     def for_length_by_defaults(cls, run_length):
         # todo :: this using cls.defaults is probably bad??
         n_length = math.ceil(run_length / cls.interval_length) - cls.start_idx
+        if n_length < 0:  # sub "START_DISTANCE[_IDX]" runs, e.g. sub 200m
+            n_length = 0
         return cls(
             times=np.full(n_length, fill_value=9999),
             hrs=np.full(n_length, fill_value=100),
