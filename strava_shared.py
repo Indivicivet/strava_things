@@ -86,11 +86,14 @@ def load_runs(require_cadences=True):
         if len(track.segments) > 1:
             print(f"{len(track.segments)=} > 1, only using first")
         segment = track.segments[0]
+        distances = [0]
+        for pt1, pt2 in zip(segment.points, segment.points[1:]):
+            distances.append(distances[-1] + pt1.distance_3d(pt2))
         runs.append(
             Run(
                 activity_id=p.stem.split("_")[1],
                 velocity=None,  # todo
-                distance=None,  # todo
+                distance=distances,
                 time=[point.time for point in segment.points],
                 # cadences are in cycles/min, I want spm
                 cadence=[
