@@ -73,7 +73,8 @@ def load_runs(require_cadences=True):
                         int,
                         info["metadata"]["start_date"].split("T")[0].split("-"),
                     )
-                ),
+                ).replace(tzinfo=datetime.timezone.utc),
+                # ^todo :: proper timezone handling?
             )
         )
     for p in MY_DATA_FOLDER.glob("*.gpx"):
