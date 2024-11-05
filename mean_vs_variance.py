@@ -16,5 +16,6 @@ plt.scatter(
 )
 plt.xlabel("mean")
 plt.ylabel("variance")
-plt.colorbar()
+colorbar = plt.colorbar()
+colorbar.set_label("distance")
 plt.show()
