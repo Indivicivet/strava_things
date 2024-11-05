@@ -7,6 +7,7 @@ runs = strava_shared.load_runs()
 
 PLOT_CADENCE = False
 
+plt.figure(figsize=(12.8, 7.2))
 if PLOT_CADENCE:
     measure_vals = [run.cadence for run in runs]
     plt.title("cadence")

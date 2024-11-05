@@ -10,6 +10,7 @@ PLOT_CADENCE = True
 
 use_runs = runs[-RECENT_N:]
 
+plt.figure(figsize=(12.8, 7.2))
 if PLOT_CADENCE:
     plot_me = [run.cadence for run in use_runs]
     plt.xlabel("cadence")
