@@ -5,7 +5,14 @@ import strava_shared
 
 runs = strava_shared.load_runs()
 
-measure_vals = [run.velocity for run in runs]
+PLOT_CADENCE = False
+
+if PLOT_CADENCE:
+    measure_vals = [run.cadence for run in runs]
+    plt.title("cadence")
+else:
+    measure_vals = [run.velocity for run in runs]
+    plt.title("velocity")
 dist_arr = np.array([run.distance[-1] for run in runs])
 plt.scatter(
     [np.mean(seq) for seq in measure_vals],
@@ -14,7 +21,6 @@ plt.scatter(
     alpha=np.clip(dist_arr / 10000, 0, 1),
     s=dist_arr / 100,
 )
-plt.title("velocity")
 plt.xlabel("mean")
 plt.ylabel("variance")
 colorbar = plt.colorbar()
