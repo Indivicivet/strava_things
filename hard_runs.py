@@ -1,7 +1,11 @@
+"""
+old script - todo :: update to use strava shared ^^
+"""
+
+
 import requests
 import time
 from pathlib import Path
-from bs4 import BeautifulSoup
 
 #resp = requests.post(
 #    "https://www.strava.com/oauth/token?"
