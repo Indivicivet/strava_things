@@ -14,6 +14,7 @@ plt.scatter(
     alpha=np.clip(dist_arr / 10000, 0, 1),
     s=dist_arr / 100,
 )
+plt.title("velocity")
 plt.xlabel("mean")
 plt.ylabel("variance")
 colorbar = plt.colorbar()
