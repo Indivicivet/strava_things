@@ -1,7 +1,7 @@
 import datetime
 import math
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import matplotlib
 from matplotlib import pyplot as plt
@@ -54,8 +54,8 @@ START_DISTANCE_IDX = 2
 
 @dataclass
 class IntervalStatistics:
-    times: np.ndarray
-    hrs: np.ndarray
+    times: np.ndarray = field(default_factory=lambda: np.array([]))
+    hrs: np.ndarray = field(default_factory=lambda: np.array([]))
     interval_length: int = PLOT_DISTANCE_INTERVAL  # todo :: could be float...?
     start_idx: int = START_DISTANCE_IDX
 
