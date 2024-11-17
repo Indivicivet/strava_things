@@ -26,6 +26,7 @@ HR_MIN = 130
 HR_MAX = 200
 
 PLOT_TOPLINES_ONLY = True
+TOPLINES_ARE_CUMULATIVE = False
 TOPLINE_DATE_CUTOFFS = [
     datetime.datetime(3000, 1, 1, tzinfo=datetime.timezone.utc),
     datetime.datetime(2024, 1, 1, tzinfo=datetime.timezone.utc),
@@ -33,6 +34,7 @@ TOPLINE_DATE_CUTOFFS = [
     datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc),
     datetime.datetime(2022, 7, 1, tzinfo=datetime.timezone.utc),
 ]
+PREHISTORIC = datetime.datetime(1, 1, 1, tzinfo=datetime.timezone.utc)
 
 
 def hr_to_01(hr):
@@ -117,10 +119,19 @@ class IntervalStatistics:
 
 if PLOT_TOPLINES_ONLY:
     print("plotting toplines only")
-    topline_stats = {
-        cutoff: IntervalStatistics(times=np.array([]), hrs=np.array([]))
-        for cutoff in TOPLINE_DATE_CUTOFFS
-    }
+    if TOPLINES_ARE_CUMULATIVE:
+        topline_stats = {
+            (max_date, PREHISTORIC): IntervalStatistics()
+            for max_date in TOPLINE_DATE_CUTOFFS
+        }
+    else:
+        topline_stats = {
+            (max_date, min_date): IntervalStatistics()
+            for max_date, min_date in zip(
+                TOPLINE_DATE_CUTOFFS,
+                TOPLINE_DATE_CUTOFFS[1:] + [PREHISTORIC],
+            )
+        }
 
 
 for run in tqdm(runs[:999]):  # most recent
@@ -147,10 +158,10 @@ for run in tqdm(runs[:999]):  # most recent
                         run.heartrate[start_i:latter_i]
                     ) / (latter_i - start_i)
     if PLOT_TOPLINES_ONLY:
-        for datetime_cutoff, timespan_stats in topline_stats.items():
-            if run.date >= datetime_cutoff:
+        for (max_date, min_date), timespan_stats in topline_stats.items():
+            if not (min_date <= run.date < max_date):
                 continue
-            topline_stats[datetime_cutoff] = timespan_stats.update_with(
+            topline_stats[(max_date, min_date)] = timespan_stats.update_with(
                 best_stats
             )
     if not PLOT_TOPLINES_ONLY:
@@ -169,7 +180,7 @@ for run in tqdm(runs[:999]):  # most recent
 
 
 if PLOT_TOPLINES_ONLY:
-    for datetime_cutoff, timespan_stats in topline_stats.items():
+    for (max_date, min_date), timespan_stats in topline_stats.items():
         paces = timespan_stats.get_pace_datetimes()
         if not JUST_PLOT_HRS:
             plt.plot(
@@ -181,7 +192,7 @@ if PLOT_TOPLINES_ONLY:
             timespan_stats.hrs if JUST_PLOT_HRS else timespan_stats.intervals,
             paces,
             s=20,
-            label=f"before {datetime_cutoff}",
+            label=f"before {max_date}",
             **extra_kwargs,
         )
         plt.legend()
