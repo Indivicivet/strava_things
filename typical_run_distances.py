@@ -11,6 +11,7 @@ runs = strava_shared.load_runs()
 
 RECENT_N = 100
 
+seaborn.set()
 plt.figure(figsize=(12.8, 7.2))
 seaborn.kdeplot(
     [run.distance[-1] for run in runs],
@@ -25,5 +26,6 @@ seaborn.kdeplot(
     label="smooth",
 )
 plt.xlabel("run length (m)")
+plt.legend()
 plt.show()
 
