@@ -17,5 +17,5 @@ if PLOT_CADENCE:
 else:
     plot_me = [run.velocity for run in use_runs]
     plt.xlabel("velocity")
-seaborn.kdeplot(plot_me)
+seaborn.kdeplot(plot_me, cut=0)
 plt.show()
