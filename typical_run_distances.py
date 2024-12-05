@@ -26,6 +26,14 @@ seaborn.kdeplot(
     label="smooth",
 )
 plt.xlabel("run length (m)")
+run_ticks = range(0, int(max(run.distance[-1] for run in runs) + 1), 1000)
+plt.xticks(
+    ticks=run_ticks,
+    labels=[
+        x if x % 5000 == 0 else ""
+        for x in run_ticks
+    ]
+)
 plt.legend()
 plt.show()
 
