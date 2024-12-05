@@ -1,1 +1,6 @@
-requests>=23.2
+gpxpy
+matplotlib
+numpy
+requests>=2.23
+seaborn
+tqdm
