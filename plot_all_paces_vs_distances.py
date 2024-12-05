@@ -205,7 +205,7 @@ if not PLOT_TOPLINES_ONLY:
         norm=plt.Normalize(vmin=HR_MIN, vmax=HR_MAX),
     )
     color_scalar_mappable.set_array([])  # Empty array since we only need the colormap
-    cbar = plt.colorbar(color_scalar_mappable)
+    cbar = plt.colorbar(color_scalar_mappable, ax=plt.gca())
 
 
 #plt.xscale("log")
