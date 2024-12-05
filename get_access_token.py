@@ -1,5 +1,6 @@
-import requests
 from pathlib import Path
+
+import requests
 
 
 secrets_folder = Path(__file__).parent / "secrets"
