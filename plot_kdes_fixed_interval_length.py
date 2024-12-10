@@ -8,8 +8,8 @@ import strava_shared
 
 runs = strava_shared.load_runs()
 
-RECENT_N = 100
-RUN_INTERVAL_M = 1000
+RECENT_N = 9999
+RUN_INTERVAL_M = 200
 SAMPLE_EVERY_N_START_POINTS = 10
 
 use_runs = runs[-RECENT_N:]
