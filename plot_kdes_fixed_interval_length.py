@@ -8,11 +8,9 @@ import strava_shared
 
 runs = strava_shared.load_runs()
 
-RECENT_N = 9999
+RECENT_N = 50
 RUN_INTERVAL_M = 200
 SAMPLE_EVERY_N_START_POINTS = 10
-
-use_runs = runs[-RECENT_N:]
 
 for plot_me in [
     "velocity",
@@ -20,7 +18,7 @@ for plot_me in [
     "heartrate",
 ]:
     data = defaultdict(list)
-    for run in runs:
+    for run in runs[-RECENT_N:]:
         start_idx = 0
         while True:
             try:
