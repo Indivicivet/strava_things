@@ -26,7 +26,7 @@ for run in runs:
                 for i, d in enumerate(run.distance)
                 if d > run.distance[start_idx] + RUN_INTERVAL_M
             )
-        except StopIteration:
+        except (StopIteration, IndexError):
             break
         data["velocity"].append(np.mean(run.velocity[start_idx:end_idx]))
         data["cadence"].append(np.mean(run.cadence[start_idx:end_idx]))
