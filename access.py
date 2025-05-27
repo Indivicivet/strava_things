@@ -3,10 +3,12 @@ from pathlib import Path
 import requests
 
 
-def get_access_token():
-    secrets_folder = Path(__file__).parent / "secrets"
-    secrets_folder.mkdir(exist_ok=True, parents=True)
-    client_id_file = secrets_folder / "client_id_and_secret.txt"
+SECRETS_FOLDER = Path(__file__).parent / "secrets"
+
+
+def setup_new_token():
+    SECRETS_FOLDER.mkdir(exist_ok=True, parents=True)
+    client_id_file = SECRETS_FOLDER / "client_id_and_secret.txt"
     if client_id_file.exists():
         print(f"using client_id and client_secret from {client_id_file}")
         client_id, client_secret = client_id_file.read_text().strip().splitlines()
@@ -45,13 +47,15 @@ def get_access_token():
     print("access token:", resp["access_token"])
     print("refresh token:", resp["refresh_token"])
 
-
     SECRETS_FOLDER.mkdir(exist_ok=True, parents=True)
     for tok in ["access", "refresh"]:
+        out_file = SECRETS_FOLDER / f"latest_{tok}.txt"
         out_file.write_text(resp[f"{tok}_token"])
         print(f"wrote to {out_file}")
 
 
+def get_token():
+    return (SECRETS_FOLDER / "latest_access.txt").read_text().strip()
 
 
 if __name__ == "__main__":

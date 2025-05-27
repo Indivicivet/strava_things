@@ -5,10 +5,9 @@ from pathlib import Path
 import requests
 from tqdm import tqdm
 
+import access
 
-ACCESS_TOKEN = (
-    Path(__file__).parent / "secrets" / "latest_access.txt"
-).read_text().strip()
+
 MY_DATA_FOLDER = Path(__file__).parent / "my_data"
 MY_DATA_FOLDER.mkdir(exist_ok=True, parents=True)
 STRAVA_RATE_CAP = 100  # actually 100; play safe for testing
@@ -36,13 +35,17 @@ ALL_STREAMS = [
 
 
 def v3_api_call(api_call):
-    result = requests.get(
-        f"https://www.strava.com/api/v3/{api_call}",
-        headers={"Authorization": "Bearer " + ACCESS_TOKEN},
-    ).json()
-    if "errors" in result:
-        raise RequestHadError(result)
-    return result
+    for i in range(2):  # try twice, setting up a new token if first time fails
+        result = requests.get(
+            f"https://www.strava.com/api/v3/{api_call}",
+            headers={"Authorization": "Bearer " + access.get_token()},
+        ).json()
+        if "errors" in result:
+            if i == 0 and "access_token" in str(result):
+                access.setup_new_token()
+                continue  # try again
+            raise RequestHadError(result)
+        return result
 
 
 def get_activity_streams(activity_id):
