@@ -78,7 +78,7 @@ print()
 START_ACTIVITY_IDX = 0
 END_ACTIVITY_IDX = 999 #START_ACTIVITY_IDX + STRAVA_RATE_CAP - 10  # wiggle room
 
-print(f"querying activites from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
+print(f"querying activities from {START_ACTIVITY_IDX} to {END_ACTIVITY_IDX}")
 
 result = {}
 for idx in tqdm(range(START_ACTIVITY_IDX, END_ACTIVITY_IDX)):
