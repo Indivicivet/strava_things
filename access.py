@@ -17,9 +17,10 @@ def get_access_token():
             "client_id=? "
         )
         client_secret = input("client_secret=? ")
+        if not client_id or not client_secret:
+            raise Exception("didn't specify id or secret")
         client_id_file.write_text(f"{client_id}\n{client_secret}")
         print(f"wrote client id and client secret to {client_id_file}")
-
 
     code = input(
         "now go to (and Authorize):\n"
@@ -45,12 +46,13 @@ def get_access_token():
     print("refresh token:", resp["refresh_token"])
 
 
-    secrets_folder.mkdir(exist_ok=True, parents=True)
+    SECRETS_FOLDER.mkdir(exist_ok=True, parents=True)
     for tok in ["access", "refresh"]:
-        out_file = secrets_folder / f"latest_{tok}.txt"
         out_file.write_text(resp[f"{tok}_token"])
         print(f"wrote to {out_file}")
 
 
+
+
 if __name__ == "__main__":
-    get_access_token()
+    setup_new_token()
