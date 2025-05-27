@@ -29,6 +29,7 @@ PLOT_TOPLINES_ONLY = True
 TOPLINES_ARE_CUMULATIVE = False
 TOPLINE_DATE_CUTOFFS = [
     datetime.datetime(3000, 1, 1, tzinfo=datetime.timezone.utc),
+    datetime.datetime(2025, 1, 1, tzinfo=datetime.timezone.utc),
     datetime.datetime(2024, 1, 1, tzinfo=datetime.timezone.utc),
     datetime.datetime(2023, 7, 1, tzinfo=datetime.timezone.utc),
     datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc),
