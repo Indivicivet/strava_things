@@ -11,7 +11,7 @@ runs = strava_shared.load_runs()
 
 PLOT_STRIDE_LENGTH = False
 PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
-HIGHLIGHT_RUN = "latest"
+HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
 
 def my_smooth(data, smooth_length=10):
@@ -37,19 +37,25 @@ for i, run in enumerate(plot_runs[::-1]):
         if PLOT_HEART_RATE
         else smooth_cadence
     )
-    is_latest_run = i == len(plot_runs) - 1
+    highlight_this_run = (
+        i == len(plot_runs) - 1
+        if HIGHLIGHT_RUN == "latest"
+        else run.activity_id == str(HIGHLIGHT_RUN)
+        if HIGHLIGHT_RUN is not None
+        else False
+    )
     plt.scatter(
         smooth_vel,
         plot_y_vals,
         # color=matplotlib.cm.get_cmap("PiYG").reversed()(run.distance[-1] / 30000),
         color=(
-            ("red" if is_latest_run else "black")
-            if HIGHLIGHT_RUN == "latest"
+            ("red" if highlight_this_run else "black")
+            if HIGHLIGHT_RUN
             else None
         ),
         alpha=(
-            (1 if is_latest_run else 0.03)
-            if HIGHLIGHT_RUN == "latest"
+            (1 if highlight_this_run else 0.03)
+            if HIGHLIGHT_RUN
             else 0.01
         ),
         s=3,
