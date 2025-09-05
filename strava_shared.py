@@ -31,20 +31,34 @@ def load_runs(require_cadences=True):
         this_cadences = None
         this_hrs = None
         this_latlng = None
-        for retrieved in info["streams"]:
-            # todo :: wow this is awful. :)
-            if retrieved["type"] == "velocity_smooth":
-                this_velocities = retrieved["data"]
-            if retrieved["type"] == "distance":
-                this_distances = retrieved["data"]
-            if retrieved["type"] == "time":
-                this_times = retrieved["data"]
-            if retrieved["type"] == "cadence":
-                this_cadences = retrieved["data"]
-            if retrieved["type"] == "heartrate":
-                this_hrs = retrieved["data"]
-            if retrieved["type"] == "latlng":
-                this_latlng = retrieved["data"]
+        streams = info["streams"]
+        if isinstance(streams, list):
+            # old format, pre 2025-09ish
+            for retrieved in streams:
+                # todo :: wow this is awful. :)
+                if retrieved["type"] == "velocity_smooth":
+                    this_velocities = retrieved["data"]
+                if retrieved["type"] == "distance":
+                    this_distances = retrieved["data"]
+                if retrieved["type"] == "time":
+                    this_times = retrieved["data"]
+                if retrieved["type"] == "cadence":
+                    this_cadences = retrieved["data"]
+                if retrieved["type"] == "heartrate":
+                    this_hrs = retrieved["data"]
+                if retrieved["type"] == "latlng":
+                    this_latlng = retrieved["data"]
+        elif isinstance(streams, dict):
+            # new format, 2025-09ish onwards
+            this_velocities = streams.get("velocity_smooth")["data"]
+            this_distances = streams.get("distance")["data"]
+            this_times = streams.get("time")["data"]
+            # todo :: deal with missing
+            this_cadences = streams.get("cadence")["data"]
+            this_hrs = streams.get("heartrate")["data"]
+            this_latlng = streams.get("latlng")["data"]
+        else:
+            raise ValueError(f"unclear what is {streams=}, expected dict or list")
         if (
             this_distances is None
             or this_velocities is None
