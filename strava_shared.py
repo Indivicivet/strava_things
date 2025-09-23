@@ -49,14 +49,20 @@ def load_runs(require_cadences=True):
                 if retrieved["type"] == "latlng":
                     this_latlng = retrieved["data"]
         elif isinstance(streams, dict):
+
+            def _getdata(label):
+                stream = streams.get(label)
+                if stream is None:
+                    return None
+                return stream["data"]
+
             # new format, 2025-09ish onwards
-            this_velocities = streams.get("velocity_smooth")["data"]
-            this_distances = streams.get("distance")["data"]
-            this_times = streams.get("time")["data"]
-            # todo :: deal with missing
-            this_cadences = streams.get("cadence")["data"]
-            this_hrs = streams.get("heartrate")["data"]
-            this_latlng = streams.get("latlng")["data"]
+            this_velocities = _getdata("velocity_smooth")
+            this_distances = _getdata("distance")
+            this_times = _getdata("time")
+            this_cadences = _getdata("cadence")
+            this_hrs = _getdata("heartrate")
+            this_latlng = _getdata("latlng")
         else:
             raise ValueError(f"unclear what is {streams=}, expected dict or list")
         if (
