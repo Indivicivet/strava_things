@@ -80,6 +80,8 @@ if PLOT_KDE:
     seaborn.kdeplot(
         x=all_vels,
         y=all_y_vals,
+        levels=15,
+        # fill=True,
     )
 
 plt.xlabel("velocity")
