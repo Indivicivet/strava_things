@@ -11,6 +11,8 @@ runs = strava_shared.load_runs()
 
 PLOT_STRIDE_LENGTH = False
 PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
+LAST_N = 50
+PLOT_KDE = False
 HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
 
@@ -21,8 +23,11 @@ def my_smooth(data, smooth_length=10):
     ])
 
 
-plot_runs = runs[:50]
+plot_runs = runs[:LAST_N]
 
+# only used for kde plot
+all_vels = np.array([])
+all_y_vals = np.array([])
 
 plt.figure(figsize=(12.8, 7.2))
 for i, run in enumerate(plot_runs[::-1]):
@@ -44,27 +49,38 @@ for i, run in enumerate(plot_runs[::-1]):
         if HIGHLIGHT_RUN is not None
         else False
     )
-    plt.scatter(
-        smooth_vel,
-        plot_y_vals,
-        # color=matplotlib.cm.get_cmap("PiYG").reversed()(run.distance[-1] / 30000),
-        color=(
-            ("red" if highlight_this_run else "black")
-            if HIGHLIGHT_RUN
-            else None
-        ),
-        alpha=(
-            (1 if highlight_this_run else 0.03)
-            if HIGHLIGHT_RUN
-            else 0.01
-        ),
-        s=3,
-    )
-    if len(plot_runs) <= 5:
-        plt.plot(
+    if PLOT_KDE:
+        # plot at the end
+        all_vels = np.append(all_vels, smooth_vel)
+        all_y_vals = np.append(all_y_vals, plot_y_vals)
+    if (not PLOT_KDE) or highlight_this_run:
+        plt.scatter(
             smooth_vel,
             plot_y_vals,
+            # color=matplotlib.cm.get_cmap("PiYG").reversed()(run.distance[-1] / 30000),
+            color=(
+                ("red" if highlight_this_run else "black")
+                if HIGHLIGHT_RUN
+                else None
+            ),
+            alpha=(
+                (1 if highlight_this_run else 0.03)
+                if HIGHLIGHT_RUN
+                else 0.01
+            ),
+            s=3,
         )
+        if len(plot_runs) <= 5:
+            plt.plot(
+                smooth_vel,
+                plot_y_vals,
+            )
+
+if PLOT_KDE:
+    seaborn.kdeplot(
+        x=all_vels,
+        y=all_y_vals,
+    )
 
 plt.xlabel("velocity")
 plt.ylabel(
