@@ -81,7 +81,7 @@ if PLOT_KDE:
         x=all_vels,
         y=all_y_vals,
         levels=15,
-        # fill=True,
+        # fill=True,  # n.b. would have to redraw highlighted run after
     )
 
 plt.xlabel("velocity")
