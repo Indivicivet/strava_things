@@ -12,6 +12,7 @@ runs = strava_shared.load_runs()
 PLOT_STRIDE_LENGTH = False
 PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
 LAST_N = 50
+PLOT_SCATTER = True
 PLOT_KDE = True
 HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
@@ -53,7 +54,7 @@ for i, run in enumerate(plot_runs[::-1]):
         # plot at the end
         all_vels = np.append(all_vels, smooth_vel)
         all_y_vals = np.append(all_y_vals, plot_y_vals)
-    if (not PLOT_KDE) or highlight_this_run:
+    if PLOT_SCATTER or highlight_this_run:
         plt.scatter(
             smooth_vel,
             plot_y_vals,
