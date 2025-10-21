@@ -12,7 +12,7 @@ runs = strava_shared.load_runs()
 PLOT_STRIDE_LENGTH = False
 PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
 LAST_N = 50
-PLOT_KDE = False
+PLOT_KDE = True
 HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
 
