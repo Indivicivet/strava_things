@@ -18,17 +18,17 @@ HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
 
 def my_smooth(data, smooth_length=10):
-    return np.array([
+    return [
         np.mean(data[i:i+smooth_length])
         for i in range(len(data) - smooth_length)
-    ])
+    ]
 
 
 plot_runs = runs[:LAST_N]
 
 # only used for kde plot
-all_vels = np.array([])
-all_y_vals = np.array([])
+all_vels = []
+all_y_vals = []
 
 plt.figure(figsize=(12.8, 7.2))
 for i, run in enumerate(plot_runs[::-1]):
@@ -37,7 +37,7 @@ for i, run in enumerate(plot_runs[::-1]):
     smooth_vel = my_smooth(run.velocity)
     smooth_cadence = my_smooth(run.cadence)
     plot_y_vals = (
-        smooth_vel / (smooth_cadence / 60)
+        np.array(smooth_vel) / (smooth_cadence / 60)
         if PLOT_STRIDE_LENGTH
         else my_smooth(run.heartrate)
         if PLOT_HEART_RATE
