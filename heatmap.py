@@ -18,7 +18,7 @@ MAX_LATLNG_SQUARED = MAX_LATLNG_FROM_CENTER ** 2
 runs = [
     run for run in strava_shared.load_runs(require_cadences=False) if run.latlng
 ]
-print(runs[0].latlng[0])
+# print(runs[0].latlng[0])
 # this is quick
 run_mean_latlngs = [np.mean(run.latlng, axis=0) for run in runs]
 median_latlng = np.median(run_mean_latlngs, axis=0)
