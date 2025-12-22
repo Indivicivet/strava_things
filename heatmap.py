@@ -81,7 +81,7 @@ plt.imshow(
     ndimage.gaussian_filter(histogram_arr, sigma=2).T,
     origin="lower",
     extent=(x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]),
-    norm=matplotlib.colors.LogNorm(vmin=1),
+    norm=matplotlib.colors.LogNorm(vmin=0.05),
     cmap="inferno",
     interpolation="nearest",
 )
