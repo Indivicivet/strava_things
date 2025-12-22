@@ -11,7 +11,7 @@ import strava_shared
 WEIGHT_CENTERED = 0.5
 BINS = 2000
 
-TAKE_EVERY_N_PTS = 5
+TAKE_EVERY_N_PTS = 1  # increase if too many datapoints :) 1 should be ok tho
 MAX_LATLNG_FROM_CENTER = 2
 MAX_LATLNG_SQUARED = MAX_LATLNG_FROM_CENTER ** 2
 
