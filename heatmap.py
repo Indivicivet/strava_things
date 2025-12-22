@@ -8,7 +8,7 @@ import strava_shared
 
 # LENGTH_WEIGHTING = 1.5  # used as an exponent in places_ive_been.py, skip here?
 
-WEIGHT_CENTERED = 1
+WEIGHT_CENTERED = 0.5
 BINS = 2000
 
 TAKE_EVERY_N_PTS = 5
