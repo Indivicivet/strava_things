@@ -2,6 +2,7 @@ import numpy as np
 import pyproj
 from matplotlib import pyplot as plt
 import matplotlib
+from scipy import ndimage
 
 import strava_shared
 
@@ -55,15 +56,17 @@ all_x, all_y = np.array([
     get_km(latlng) for run in runs for latlng in run.latlng[::TAKE_EVERY_N_PTS]
 ]).T
 
-print(len(all_x))
+# print(len(all_x))
 
-print("plotting")  # this is slow
-plt.hist2d(
-    all_x,
-    all_y,
-    bins=800,
-    norm=matplotlib.colors.LogNorm(vmin=1),  # vmin avoids log(0)
+histogram_arr, x_edges, y_edges = np.histogram2d(all_x, all_y, bins=800)
+plt.figure(figsize=(6, 6))
+plt.imshow(
+    ndimage.gaussian_filter(histogram_arr, sigma=1.5).T,
+    origin="lower",
+    extent=(x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]),
+    norm=matplotlib.colors.LogNorm(vmin=1),
     cmap="inferno",
+    interpolation="nearest",
 )
 plt.gca().set_aspect("equal", "box")
 plt.show()
