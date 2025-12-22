@@ -8,8 +8,8 @@ import strava_shared
 
 # LENGTH_WEIGHTING = 1.5  # used as an exponent in places_ive_been.py, skip here?
 
-TAKE_EVERY_N_PTS = 10
-MAX_LATLNG_FROM_CENTER = 0.5
+TAKE_EVERY_N_PTS = 5
+MAX_LATLNG_FROM_CENTER = 2
 MAX_LATLNG_SQUARED = MAX_LATLNG_FROM_CENTER ** 2
 
 runs = [
