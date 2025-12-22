@@ -77,6 +77,7 @@ histogram_arr, x_edges, y_edges = np.histogram2d(
     weights=weights,
 )
 fig, ax = plt.subplots(figsize=(9, 9))
+ax.set_facecolor("black")
 plt.imshow(
     ndimage.gaussian_filter(histogram_arr, sigma=2).T,
     origin="lower",
