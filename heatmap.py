@@ -76,7 +76,7 @@ histogram_arr, x_edges, y_edges = np.histogram2d(
     bins=BINS,
     weights=weights,
 )
-plt.figure(figsize=(6, 6))
+fig, ax = plt.subplots(figsize=(9, 9))
 plt.imshow(
     ndimage.gaussian_filter(histogram_arr, sigma=2).T,
     origin="lower",
@@ -85,5 +85,7 @@ plt.imshow(
     cmap="inferno",
     interpolation="nearest",
 )
+ax.margins(0)
+fig.tight_layout(pad=0)
 plt.gca().set_aspect("equal", "box")
 plt.show()
