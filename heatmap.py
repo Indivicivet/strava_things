@@ -1,7 +1,7 @@
 import numpy as np
 import pyproj
-import seaborn
 from matplotlib import pyplot as plt
+import matplotlib
 
 import strava_shared
 
@@ -58,10 +58,12 @@ all_x, all_y = np.array([
 print(len(all_x))
 
 print("plotting")  # this is slow
-seaborn.kdeplot(
-    x=all_x,
-    y=all_y,
-    levels=15,
-    fill=True,
+plt.hist2d(
+    all_x,
+    all_y,
+    bins=800,
+    norm=matplotlib.colors.LogNorm(vmin=1),  # vmin avoids log(0)
+    cmap="inferno",
 )
+plt.gca().set_aspect("equal", "box")
 plt.show()
