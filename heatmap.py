@@ -8,6 +8,9 @@ import strava_shared
 
 # LENGTH_WEIGHTING = 1.5  # used as an exponent in places_ive_been.py, skip here?
 
+WEIGHT_CENTERED = 1
+BINS = 2000
+
 TAKE_EVERY_N_PTS = 5
 MAX_LATLNG_FROM_CENTER = 2
 MAX_LATLNG_SQUARED = MAX_LATLNG_FROM_CENTER ** 2
@@ -58,7 +61,21 @@ all_x, all_y = np.array([
 
 # print(len(all_x))
 
-histogram_arr, x_edges, y_edges = np.histogram2d(all_x, all_y, bins=2000)
+weights = None
+if WEIGHT_CENTERED is not None:
+    counts, x_edges, y_edges = np.histogram2d(all_x, all_y, bins=BINS)
+    i, j = np.unravel_index(np.argmax(counts), counts.shape)
+    x0 = 0.5 * (x_edges[i] + x_edges[i + 1])
+    y0 = 0.5 * (y_edges[j] + y_edges[j + 1])
+    # weight based on distance:
+    weights = ((all_x - x0) ** 2 + (all_y - y0) ** 2) ** (WEIGHT_CENTERED / 2)
+
+histogram_arr, x_edges, y_edges = np.histogram2d(
+    all_x,
+    all_y,
+    bins=BINS,
+    weights=weights,
+)
 plt.figure(figsize=(6, 6))
 plt.imshow(
     ndimage.gaussian_filter(histogram_arr, sigma=2).T,
