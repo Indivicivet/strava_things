@@ -55,6 +55,7 @@ def get_km(latlng):
     return x_m / 1000, y_m / 1000
 
 
+# todo :: also weight by velocity so slower != brighter
 all_x, all_y = np.array([
     get_km(latlng) for run in runs for latlng in run.latlng[::TAKE_EVERY_N_PTS]
 ]).T
