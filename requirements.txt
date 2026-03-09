@@ -4,3 +4,5 @@ numpy
 requests>=2.23
 seaborn
 tqdm
+pyproj
+scipy
