@@ -129,6 +129,10 @@ if PLOT_TOPLINES_ONLY:
 
 for run in tqdm(runs[:999]):  # most recent
     best_stats = IntervalStatistics.for_length_by_defaults(run.distance[-1])
+    hr_prefix_sum = None
+    if run.heartrate is not None:
+        hr_prefix_sum = np.cumsum(np.insert(run.heartrate, 0, 0))
+
     for arr_idx in range(len(best_stats.times)):
         target_dist = (arr_idx + START_DISTANCE_IDX) * PLOT_DISTANCE_INTERVAL
         latter_i = 0
@@ -148,10 +152,10 @@ for run in tqdm(runs[:999]):  # most recent
             if interval_time < best_stats.times[arr_idx]:
                 best_stats.times[arr_idx] = interval_time
                 if run.heartrate is not None:
-                    # todo :: maybe this averaging could also be optimized?
-                    best_stats.hrs[arr_idx] = sum(run.heartrate[start_i:latter_i]) / (
-                        latter_i - start_i
-                    )
+                if hr_prefix_sum is not None:
+                    best_stats.hrs[arr_idx] = (
+                        hr_prefix_sum[latter_i] - hr_prefix_sum[start_i]
+                    ) / (latter_i - start_i)
     if PLOT_TOPLINES_ONLY:
         for (max_date, min_date), timespan_stats in topline_stats.items():
             if not (min_date <= run.date < max_date):
