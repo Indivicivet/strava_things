@@ -35,7 +35,10 @@ def std_if_valid(window_data, invalid_thres):
 
 
 def window_std(data, window=10, invalid_thres=80):
-    return np.array([std_if_valid(data[i : i + window], invalid_thres) for i in range(len(data) - window)])
+    return np.array([
+        std_if_valid(data[i : i + window], invalid_thres)
+        for i in range(len(data) - window)
+    ])
 
 
 
