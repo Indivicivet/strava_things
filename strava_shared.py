@@ -125,10 +125,7 @@ def load_runs(require_cadences=True):
                     int(point.extensions[0].getchildren()[0].text)
                     for point in segment.points
                 ],
-                latlng=[
-                    (point.latitude, point.longitude)
-                    for point in segment.points
-                ],
+                latlng=[(point.latitude, point.longitude) for point in segment.points],
                 date=gpx.time,
             ),
         )
