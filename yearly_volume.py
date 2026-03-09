@@ -17,7 +17,7 @@ yearly_other_dec_volume = defaultdict(float)
 yearly_daily_volumes = defaultdict(lambda: defaultdict(float))
 
 for run in runs:
-    is_run = run.activity_type == "Run"
+    is_run = run.activity_type.is_run
     year = run.date.year
     month = run.date.month
     day_of_year = run.date.timetuple().tm_yday

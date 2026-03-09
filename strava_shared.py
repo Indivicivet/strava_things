@@ -9,6 +9,18 @@ import gpxpy
 MY_DATA_FOLDER = Path(__file__).parent / "my_data"
 
 
+@dataclass(frozen=True)
+class ActivityType:
+    name: str
+
+    @property
+    def is_run(self) -> bool:
+        return self.name in ("Run", "Trail Run")
+
+    def __str__(self):
+        return self.name
+
+
 @dataclass
 class Run:
     activity_id: str
@@ -19,7 +31,7 @@ class Run:
     heartrate: Optional[list] = None
     latlng: Optional[list] = None
     date: Optional[datetime.datetime] = None
-    activity_type: str = "Run"
+    activity_type: ActivityType = ActivityType("Run")
 
 
 def load_runs(require_cadences=True):
@@ -96,7 +108,7 @@ def load_runs(require_cadences=True):
                     )
                 ).replace(tzinfo=datetime.timezone.utc),
                 # ^todo :: proper timezone handling?
-                activity_type=info["metadata"].get("type", "Run"),
+                activity_type=ActivityType(info["metadata"].get("type", "Run")),
             )
         )
     for p in MY_DATA_FOLDER.glob("*.gpx"):
@@ -129,7 +141,8 @@ def load_runs(require_cadences=True):
                 ],
                 latlng=[(point.latitude, point.longitude) for point in segment.points],
                 date=gpx.time,
-                activity_type="Run",  # GPX doesn't easily store type in a standard way here
+                # GPX doesn't easily store type in a standard way here:
+                activity_type=ActivityType("Run"),
             ),
         )
     return sorted(runs, key=lambda r: r.date, reverse=True)
