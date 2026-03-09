@@ -195,6 +195,7 @@ for run in tqdm(runs[:999]):  # most recent
 
 if PLOT_TOPLINES_ONLY:
     for (max_date, min_date), timespan_stats in topline_stats.items():
+        print(f"\nUntil {max_date.date()}")
         paces = timespan_stats.get_pace_datetimes()
         if not JUST_PLOT_HRS:
             plt.plot(
