@@ -17,7 +17,7 @@ plt.style.use("dark_background")
 
 runs = strava_shared.load_runs(require_cadences=False)
 
-#max_distance = max(run.distance[-1] for run in runs)
+# max_distance = max(run.distance[-1] for run in runs)
 PLOT_DISTANCE_INTERVAL = 100
 
 JUST_PLOT_HRS = False
@@ -39,10 +39,7 @@ PREHISTORIC = datetime.datetime(1, 1, 1, tzinfo=datetime.timezone.utc)
 
 
 def hr_to_01(hr):
-    return np.clip(
-        (np.array(hr) - HR_MIN) / (HR_MAX - HR_MIN),
-        0, 1
-    )
+    return np.clip((np.array(hr) - HR_MIN) / (HR_MAX - HR_MIN), 0, 1)
 
 
 color_map_from_01 = matplotlib.cm.get_cmap("RdYlBu").reversed()
@@ -63,15 +60,13 @@ class IntervalStatistics:
     start_idx: int = START_DISTANCE_IDX
 
     def __post_init__(self):
-        assert len(self.times) == len(self.hrs), (
-            f"{len(self.times)=} != {len(self.hrs)=}"
-        )
+        assert len(self.times) == len(
+            self.hrs
+        ), f"{len(self.times)=} != {len(self.hrs)=}"
 
     @property
     def intervals(self):
-        return (
-            self.start_idx + np.arange(len(self.times))
-        ) * self.interval_length
+        return (self.start_idx + np.arange(len(self.times))) * self.interval_length
 
     def get_pace_datetimes(self):
         return [
@@ -106,12 +101,8 @@ class IntervalStatistics:
             )
             result.hrs = np.append(result.hrs, [0] * need_extend_by)
         # todo :: also kinda yucky code with this np array vs list business
-        other_times = np.append(
-            other_stats.times, [99999] * max(-need_extend_by, 0)
-        )
-        other_hrs = np.append(
-            other_stats.hrs, [0] * max(-need_extend_by, 0)
-        )
+        other_times = np.append(other_stats.times, [99999] * max(-need_extend_by, 0))
+        other_hrs = np.append(other_stats.hrs, [0] * max(-need_extend_by, 0))
         where_update = other_times < result.times
         result.times[where_update] = other_times[where_update]
         result.hrs[where_update] = other_hrs[where_update]
@@ -165,6 +156,7 @@ for run in tqdm(runs[:999]):  # most recent
             topline_stats[(max_date, min_date)] = timespan_stats.update_with(
                 best_stats
             )
+            topline_stats[(max_date, min_date)] = timespan_stats.update_with(best_stats)
     if not PLOT_TOPLINES_ONLY:
         paces = best_stats.get_pace_datetimes()
         plt.plot(
@@ -209,7 +201,7 @@ if not PLOT_TOPLINES_ONLY:
     cbar = plt.colorbar(color_scalar_mappable, ax=plt.gca())
 
 
-#plt.xscale("log")
+# plt.xscale("log")
 start, end = plt.gca().get_xlim()
 if not JUST_PLOT_HRS:
     plt.gca().xaxis.set_ticks(range(0, int(end) + 1000, 1000))
