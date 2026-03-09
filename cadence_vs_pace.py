@@ -40,13 +40,12 @@ def window_std(data, window=10, invalid_thres=80):
         for i in range(len(data) - window)
     ])
 
+
 def pace_formatter(x, pos):
     if x <= 0:
         return ""
     pace_seconds = 1000 / x
-    minutes = int(pace_seconds // 60)
-    seconds = int(pace_seconds % 60)
-    return f"{minutes}:{seconds:02d}"
+    return f"{int(pace_seconds // 60)}:{int(pace_seconds % 60):02d}"
 
 
 plot_runs = runs[:LAST_N]
