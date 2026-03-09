@@ -57,13 +57,18 @@ START_DISTANCE_IDX = 2
 class IntervalStatistics:
     times: np.ndarray = field(default_factory=lambda: np.array([]))
     hrs: np.ndarray = field(default_factory=lambda: np.array([]))
+    activity_ids: np.ndarray = field(default_factory=lambda: np.array([], dtype=object))
+    dates: np.ndarray = field(default_factory=lambda: np.array([], dtype=object))
     interval_length: int = PLOT_DISTANCE_INTERVAL  # todo :: could be float...?
     start_idx: int = START_DISTANCE_IDX
 
     def __post_init__(self):
-        assert len(self.times) == len(
-            self.hrs
-        ), f"{len(self.times)=} != {len(self.hrs)=}"
+        assert (
+            len(self.times)
+            == len(self.hrs)
+            == len(self.activity_ids)
+            == len(self.dates)
+        )
 
     @property
     def intervals(self):
@@ -82,31 +87,42 @@ class IntervalStatistics:
         if n_length < 0:  # sub "START_DISTANCE[_IDX]" runs, e.g. sub 200m
             n_length = 0
         return cls(
-            times=np.full(n_length, fill_value=9999),
-            hrs=np.full(n_length, fill_value=100),
+            times=np.full(n_length, fill_value=9999.0),
+            hrs=np.full(n_length, fill_value=100.0),
+            activity_ids=np.full(n_length, fill_value="", dtype=object),
+            dates=np.full(n_length, fill_value=PREHISTORIC, dtype=object),
         )
 
     def update_with(self, other_stats):  # intervalstatistics^2->intervalstats
         # todo :: maybe not the nicest...
         result = type(self)(
-            times=self.times,
-            hrs=self.hrs,
+            times=self.times.copy(),
+            hrs=self.hrs.copy(),
+            activity_ids=self.activity_ids.copy(),
+            dates=self.dates.copy(),
             interval_length=self.interval_length,
             start_idx=self.start_idx,
         )
         need_extend_by = len(other_stats.times) - len(result.times)
         if need_extend_by > 0:
-            result.times = np.append(
-                result.times,
-                [99999] * need_extend_by,
-            )
-            result.hrs = np.append(result.hrs, [0] * need_extend_by)
+            result.times = np.append(result.times, [99999.0] * need_extend_by)
+            result.hrs = np.append(result.hrs, [0.0] * need_extend_by)
+            result.activity_ids = np.append(result.activity_ids, [""] * need_extend_by)
+            result.dates = np.append(result.dates, [PREHISTORIC] * need_extend_by)
         # todo :: also kinda yucky code with this np array vs list business
-        other_times = np.append(other_stats.times, [99999] * max(-need_extend_by, 0))
-        other_hrs = np.append(other_stats.hrs, [0] * max(-need_extend_by, 0))
+        other_times = np.append(other_stats.times, [99999.0] * max(-need_extend_by, 0))
+        other_hrs = np.append(other_stats.hrs, [0.0] * max(-need_extend_by, 0))
+        other_activity_ids = np.append(
+            other_stats.activity_ids, [""] * max(-need_extend_by, 0)
+        )
+        other_dates = np.append(
+            other_stats.dates, [PREHISTORIC] * max(-need_extend_by, 0)
+        )
         where_update = other_times < result.times
         result.times[where_update] = other_times[where_update]
         result.hrs[where_update] = other_hrs[where_update]
+        result.activity_ids[where_update] = other_activity_ids[where_update]
+        result.dates[where_update] = other_dates[where_update]
         return result
 
 
@@ -129,6 +145,8 @@ if PLOT_TOPLINES_ONLY:
 
 for run in tqdm(runs[:999]):  # most recent
     best_stats = IntervalStatistics.for_length_by_defaults(run.distance[-1])
+    best_stats.activity_ids[:] = run.activity_id
+    best_stats.dates[:] = run.date
     hr_prefix_sum = None
     if run.heartrate is not None:
         hr_prefix_sum = np.cumsum(np.insert(run.heartrate, 0, 0))
@@ -183,6 +201,37 @@ if PLOT_TOPLINES_ONLY:
                 timespan_stats.intervals,
                 paces,
             )
+        if len(timespan_stats.activity_ids) > 0:
+            current_activity = timespan_stats.activity_ids[0]
+            current_date = timespan_stats.dates[0]
+            start_dist = timespan_stats.intervals[0]
+            last_dist = timespan_stats.intervals[0]
+
+            def print_range(act, dt, start, end):
+                if not act:
+                    return
+                date_str = dt.strftime("%Y-%m-%d") if dt else "Unknown Date"
+                if start == end:
+                    dist_str = f"{start / 1000:.1f}km"
+                else:
+                    dist_str = f"{start / 1000:.1f}km - {end / 1000:.1f}km"
+                print(
+                    f"https://www.strava.com/activities/{act} [{date_str}] {dist_str}"
+                )
+
+            for i in range(1, len(timespan_stats.activity_ids)):
+                act = timespan_stats.activity_ids[i]
+                dt = timespan_stats.dates[i]
+                dist = timespan_stats.intervals[i]
+                if act == current_activity:
+                    last_dist = dist
+                else:
+                    print_range(current_activity, current_date, start_dist, last_dist)
+                    current_activity = act
+                    current_date = dt
+                    start_dist = dist
+                    last_dist = dist
+            print_range(current_activity, current_date, start_dist, last_dist)
         extra_kwargs = {"c": color_map(timespan_stats.hrs)} if JUST_PLOT_HRS else {}
         plt.scatter(
             timespan_stats.hrs if JUST_PLOT_HRS else timespan_stats.intervals,
