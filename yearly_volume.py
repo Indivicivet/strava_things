@@ -8,7 +8,7 @@ import strava_shared
 
 RUNS_ONLY_FOR_KDE = True
 
-runs = strava_shared.load_runs(require_cadences=False)
+activities = strava_shared.load_activities(require_cadences=False)
 
 yearly_run_non_dec_volume = defaultdict(float)
 yearly_run_dec_volume = defaultdict(float)
@@ -16,12 +16,12 @@ yearly_other_non_dec_volume = defaultdict(float)
 yearly_other_dec_volume = defaultdict(float)
 yearly_daily_volumes = defaultdict(lambda: defaultdict(float))
 
-for run in runs:
-    is_run = run.activity_type.is_run
-    year = run.date.year
-    month = run.date.month
-    day_of_year = run.date.timetuple().tm_yday
-    distance_km = run.distance[-1] / 1000.0
+for activity in activities:
+    is_run = activity.activity_type.is_run
+    year = activity.date.year
+    month = activity.date.month
+    day_of_year = activity.date.timetuple().tm_yday
+    distance_km = activity.distance[-1] / 1000.0
 
     if is_run:
         if month == 12:

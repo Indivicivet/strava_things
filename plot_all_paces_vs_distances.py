@@ -15,7 +15,7 @@ import strava_shared
 seaborn.set()
 plt.style.use("dark_background")
 
-runs = strava_shared.load_runs(require_cadences=False)
+activities = strava_shared.load_activities(require_cadences=False)
 
 PLOT_DISTANCE_INTERVAL = 100
 
@@ -80,10 +80,10 @@ class IntervalStatistics:
         ]
 
     @classmethod
-    def for_length_by_defaults(cls, run_length):
+    def for_length_by_defaults(cls, activity_length):
         # todo :: this using cls.defaults is probably bad??
-        n_length = math.ceil(run_length / cls.interval_length) - cls.start_idx
-        if n_length < 0:  # sub "START_DISTANCE[_IDX]" runs, e.g. sub 200m
+        n_length = math.ceil(activity_length / cls.interval_length) - cls.start_idx
+        if n_length < 0:  # sub "START_DISTANCE[_IDX]" activities, e.g. sub 200m
             n_length = 0
         return cls(
             times=np.full(n_length, fill_value=9999.0),
@@ -142,26 +142,26 @@ if PLOT_TOPLINES_ONLY:
         }
 
 
-for run in tqdm(runs[:999]):  # most recent
-    best_stats = IntervalStatistics.for_length_by_defaults(run.distance[-1])
-    best_stats.activity_ids[:] = run.activity_id
-    best_stats.dates[:] = run.date
+for activity in tqdm(activities[:999]):  # most recent
+    best_stats = IntervalStatistics.for_length_by_defaults(activity.distance[-1])
+    best_stats.activity_ids[:] = activity.activity_id
+    best_stats.dates[:] = activity.date
     hr_prefix_sum = None
-    if run.heartrate is not None:
-        hr_prefix_sum = np.cumsum(np.insert(run.heartrate, 0, 0))
+    if activity.heartrate is not None:
+        hr_prefix_sum = np.cumsum(np.insert(activity.heartrate, 0, 0))
 
     for arr_idx in range(len(best_stats.times)):
         target_dist = (arr_idx + START_DISTANCE_IDX) * PLOT_DISTANCE_INTERVAL
         latter_i = 0
-        for start_i, start_d in enumerate(run.distance):
+        for start_i, start_d in enumerate(activity.distance):
             while (
-                latter_i < len(run.distance)
-                and (run.distance[latter_i] - start_d) < target_dist
+                latter_i < len(activity.distance)
+                and (activity.distance[latter_i] - start_d) < target_dist
             ):
                 latter_i += 1
-            if latter_i >= len(run.distance):
+            if latter_i >= len(activity.distance):
                 break
-            interval_time = run.time[latter_i] - run.time[start_i]
+            interval_time = activity.time[latter_i] - activity.time[start_i]
             if isinstance(interval_time, datetime.timedelta):
                 interval_time = interval_time.total_seconds()
             if interval_time < best_stats.times[arr_idx]:
@@ -172,7 +172,7 @@ for run in tqdm(runs[:999]):  # most recent
                     ) / (latter_i - start_i)
     if PLOT_TOPLINES_ONLY:
         for (max_date, min_date), timespan_stats in topline_stats.items():
-            if not (min_date <= run.date < max_date):
+            if not (min_date <= activity.date < max_date):
                 continue
             topline_stats[(max_date, min_date)] = timespan_stats.update_with(best_stats)
     if not PLOT_TOPLINES_ONLY:

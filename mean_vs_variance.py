@@ -3,18 +3,18 @@ import numpy as np
 
 import strava_shared
 
-runs = strava_shared.load_runs()
+activities = strava_shared.load_activities()
 
 PLOT_CADENCE = False
 
 plt.figure(figsize=(12.8, 7.2))
 if PLOT_CADENCE:
-    measure_vals = [run.cadence for run in runs]
+    measure_vals = [activity.cadence for activity in activities]
     plt.title("cadence")
 else:
-    measure_vals = [run.velocity for run in runs]
+    measure_vals = [activity.velocity for activity in activities]
     plt.title("velocity")
-dist_arr = np.array([run.distance[-1] for run in runs])
+dist_arr = np.array([activity.distance[-1] for activity in activities])
 plt.scatter(
     [np.mean(seq) for seq in measure_vals],
     [np.var(seq) for seq in measure_vals],

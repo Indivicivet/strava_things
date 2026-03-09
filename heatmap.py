@@ -13,28 +13,32 @@ BINS = 2000
 
 TAKE_EVERY_N_PTS = 1  # increase if too many datapoints :) 1 should be ok tho
 MAX_LATLNG_FROM_CENTER = 2
-MAX_LATLNG_SQUARED = MAX_LATLNG_FROM_CENTER ** 2
+MAX_LATLNG_SQUARED = MAX_LATLNG_FROM_CENTER**2
 
-runs = [
-    run for run in strava_shared.load_runs(require_cadences=False) if run.latlng
+activities = [
+    activity
+    for activity in strava_shared.load_activities(require_cadences=False)
+    if activity.latlng
 ]
-# print(runs[0].latlng[0])
+# print(activities[0].latlng[0])
 # this is quick
-run_mean_latlngs = [np.mean(run.latlng, axis=0) for run in runs]
-median_latlng = np.median(run_mean_latlngs, axis=0)
+activity_mean_latlngs = [np.mean(activity.latlng, axis=0) for activity in activities]
+median_latlng = np.median(activity_mean_latlngs, axis=0)
 if MAX_LATLNG_FROM_CENTER is not None:
-    unfiltered_n = len(runs)
-    runs = [
-        run
-        for run, center in zip(runs, run_mean_latlngs)
+    unfiltered_n = len(activities)
+    activities = [
+        activity
+        for activity, center in zip(activities, activity_mean_latlngs)
         if ((center - median_latlng) ** 2).sum() < MAX_LATLNG_SQUARED
     ]
     print(
-        f"using {len(runs)} / {unfiltered_n} runs"
+        f"using {len(activities)} / {unfiltered_n} activities"
         f" (based on max latlng distance {MAX_LATLNG_FROM_CENTER})"
     )
-    run_mean_latlngs = [np.mean(run.latlng, axis=0) for run in runs]
-    median_latlng = np.median(run_mean_latlngs, axis=0)
+    activity_mean_latlngs = [
+        np.mean(activity.latlng, axis=0) for activity in activities
+    ]
+    median_latlng = np.median(activity_mean_latlngs, axis=0)
 
 
 lat0, lng0 = median_latlng
@@ -56,9 +60,13 @@ def get_km(latlng):
 
 
 # todo :: also weight by velocity so slower != brighter
-all_x, all_y = np.array([
-    get_km(latlng) for run in runs for latlng in run.latlng[::TAKE_EVERY_N_PTS]
-]).T
+all_x, all_y = np.array(
+    [
+        get_km(latlng)
+        for activity in activities
+        for latlng in activity.latlng[::TAKE_EVERY_N_PTS]
+    ]
+).T
 
 # print(len(all_x))
 

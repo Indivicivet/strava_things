@@ -8,7 +8,7 @@ import strava_shared
 
 seaborn.set()
 
-runs = strava_shared.load_runs()
+activities = strava_shared.load_activities()
 
 PLOT_STRIDE_LENGTH = False
 PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
@@ -21,7 +21,7 @@ KDE_BASED_ON_DISTANCE = True
 VELOCITY_STD_THRESHOLD = 0.5
 CADENCE_STD_THRESHOLD = 5
 
-HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
+HIGHLIGHT_ACTIVITY = "latest"  # "latest" or None or an activity id
 
 
 def my_smooth(data, smooth_length=10):
@@ -35,10 +35,12 @@ def std_if_valid(window_data, invalid_thres):
 
 
 def window_std(data, window=10, invalid_thres=80):
-    return np.array([
-        std_if_valid(data[i : i + window], invalid_thres)
-        for i in range(len(data) - window)
-    ])
+    return np.array(
+        [
+            std_if_valid(data[i : i + window], invalid_thres)
+            for i in range(len(data) - window)
+        ]
+    )
 
 
 def pace_formatter(x, pos):
@@ -48,7 +50,7 @@ def pace_formatter(x, pos):
     return f"{int(pace_seconds // 60)}:{int(pace_seconds % 60):02d}"
 
 
-plot_runs = runs[:LAST_N]
+plot_activities = activities[:LAST_N]
 
 # only used for kde plot
 all_vels = []
@@ -56,29 +58,33 @@ all_y_vals = []
 all_weights = []
 
 plt.figure(figsize=(12.8, 7.2))
-for i, run in enumerate(tqdm(plot_runs[::-1])):
-    if PLOT_HEART_RATE and not run.heartrate:
+for i, activity in enumerate(tqdm(plot_activities[::-1])):
+    if PLOT_HEART_RATE and not activity.heartrate:
         continue
-    smooth_vel = my_smooth(run.velocity)
-    smooth_cadence = my_smooth(run.cadence)
+    smooth_vel = my_smooth(activity.velocity)
+    smooth_cadence = my_smooth(activity.cadence)
     plot_y_vals = np.array(
         smooth_vel / (smooth_cadence / 60)
         if PLOT_STRIDE_LENGTH
-        else np.array(my_smooth(run.heartrate)) if PLOT_HEART_RATE else smooth_cadence
+        else (
+            np.array(my_smooth(activity.heartrate))
+            if PLOT_HEART_RATE
+            else smooth_cadence
+        )
     )
-    mask = (window_std(run.velocity, invalid_thres=0.2) < VELOCITY_STD_THRESHOLD) & (
-        window_std(run.cadence, invalid_thres=80) < CADENCE_STD_THRESHOLD
-    )
+    mask = (
+        window_std(activity.velocity, invalid_thres=0.2) < VELOCITY_STD_THRESHOLD
+    ) & (window_std(activity.cadence, invalid_thres=80) < CADENCE_STD_THRESHOLD)
 
     smooth_vel = smooth_vel[mask]
     plot_y_vals = plot_y_vals[mask]
 
-    highlight_this_run = (
-        i == len(plot_runs) - 1
-        if HIGHLIGHT_RUN == "latest"
+    highlight_this_activity = (
+        i == len(plot_activities) - 1
+        if HIGHLIGHT_ACTIVITY == "latest"
         else (
-            run.activity_id == str(HIGHLIGHT_RUN)
-            if HIGHLIGHT_RUN is not None
+            activity.activity_id == str(HIGHLIGHT_ACTIVITY)
+            if HIGHLIGHT_ACTIVITY is not None
             else False
         )
     )
@@ -90,16 +96,22 @@ for i, run in enumerate(tqdm(plot_runs[::-1])):
             all_weights,
             smooth_vel if KDE_BASED_ON_DISTANCE else np.ones(len(smooth_vel)),
         )
-    if (PLOT_SCATTER or highlight_this_run) and len(smooth_vel) > 0:
+    if (PLOT_SCATTER or highlight_this_activity) and len(smooth_vel) > 0:
         plt.scatter(
             smooth_vel,
             plot_y_vals,
-            # color=matplotlib.cm.get_cmap("PiYG").reversed()(run.distance[-1] / 30000),
-            color=("red" if highlight_this_run else "black") if HIGHLIGHT_RUN else None,
-            alpha=(1 if highlight_this_run else 0.03) if HIGHLIGHT_RUN else 0.01,
+            # color=matplotlib.cm.get_cmap("PiYG").reversed()(activity.distance[-1] / 30000),
+            color=(
+                ("red" if highlight_this_activity else "black")
+                if HIGHLIGHT_ACTIVITY
+                else None
+            ),
+            alpha=(
+                (1 if highlight_this_activity else 0.03) if HIGHLIGHT_ACTIVITY else 0.01
+            ),
             s=3,
         )
-        if len(plot_runs) <= 5:
+        if len(plot_activities) <= 5:
             plt.plot(
                 smooth_vel,
                 plot_y_vals,
@@ -112,7 +124,7 @@ if PLOT_KDE:
         y=all_y_vals,
         weights=all_weights,
         levels=15,
-        # fill=True,  # n.b. would have to redraw highlighted run after
+        # fill=True,  # n.b. would have to redraw highlighted activity after
     )
 
 plt.gca().xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(pace_formatter))

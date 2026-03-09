@@ -22,7 +22,7 @@ class ActivityType:
 
 
 @dataclass
-class Run:
+class Activity:
     activity_id: str
     velocity: list
     distance: list
@@ -34,8 +34,8 @@ class Run:
     activity_type: ActivityType = ActivityType("Run")
 
 
-def load_runs(require_cadences=True):
-    runs = []
+def load_activities(require_cadences=True):
+    activities = []
     for p in MY_DATA_FOLDER.glob("*.json"):
         info = json.loads(p.read_text())
         this_velocities = None
@@ -84,10 +84,10 @@ def load_runs(require_cadences=True):
             or this_times is None
             or (this_cadences is None and require_cadences)
         ):
-            print(f"got a run missing things, {p.stem=}, {require_cadences=}")
+            print(f"got an activity missing things, {p.stem=}, {require_cadences=}")
             continue
-        runs.append(
-            Run(
+        activities.append(
+            Activity(
                 activity_id=p.stem.split("_")[1],
                 velocity=this_velocities,
                 distance=this_distances,
@@ -123,8 +123,8 @@ def load_runs(require_cadences=True):
         distances = [0]
         for pt1, pt2 in zip(segment.points, segment.points[1:]):
             distances.append(distances[-1] + pt1.distance_3d(pt2))
-        runs.append(
-            Run(
+        activities.append(
+            Activity(
                 activity_id=p.stem.split("_")[1],
                 velocity=None,  # todo
                 distance=distances,
@@ -145,4 +145,4 @@ def load_runs(require_cadences=True):
                 activity_type=ActivityType("Run"),
             ),
         )
-    return sorted(runs, key=lambda r: r.date, reverse=True)
+    return sorted(activities, key=lambda r: r.date, reverse=True)
