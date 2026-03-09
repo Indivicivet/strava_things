@@ -52,25 +52,59 @@ ax2.set_xticks(years)
 
 # Bottom: KDE of daily volume
 ax3 = fig.add_subplot(gs[1, :])
+
+# Smoothing kernel
+sigma = 7  # Days for smoothing
+pad = 3 * sigma
+x_kernel = np.arange(-pad, pad + 1)
+kernel = np.exp(-(x_kernel**2) / (2 * sigma**2))
+kernel /= kernel.sum()
+
+
+def get_daily_array(y):
+    arr = np.zeros(366)
+    for d, vol in yearly_daily_volumes[y].items():
+        if 1 <= d <= 366:
+            arr[d - 1] = vol
+    return arr
+
+
 for year in years:
-    days = []
-    weights = []
-    for day, volume in yearly_daily_volumes[year].items():
-        days.append(day)
-        weights.append(volume)
-    sns.kdeplot(
-        x=days,
-        weights=weights,
+    daily_vol = get_daily_array(year)
+
+    # Pad with adjacent years if possible, otherwise repeat current year edges
+    if year - 1 in yearly_daily_volumes:
+        prev_tail = get_daily_array(year - 1)[-pad:]
+    else:
+        prev_tail = daily_vol[
+            :pad
+        ]  # fallback: repeat start (mirroring or just repeating)
+        # Actually, user said "preceding year's values".
+        # If no preceding year, we might just have to accept 0 or repeat.
+        # Let's repeat the first day's value or similar to avoid the drop.
+        prev_tail = np.full(pad, daily_vol[0])
+
+    if year + 1 in yearly_daily_volumes:
+        next_head = get_daily_array(year + 1)[:pad]
+    else:
+        next_head = np.full(pad, daily_vol[-1])
+
+    padded_vol = np.concatenate([prev_tail, daily_vol, next_head])
+
+    # Smooth using 'valid' to get exactly 366 days back
+    smoothed_vol = np.convolve(padded_vol, kernel, mode="valid")
+
+    ax3.plot(
+        np.arange(1, 367),
+        smoothed_vol,
         label=str(year),
-        ax=ax3,
-        bw_adjust=0.5,
-        clip=(1, 366),
     )
 
 ax3.set_title("Running Volume")
 ax3.set_xlabel("Day")
 ax3.set_ylabel("Volume (km)")
 ax3.set_xlim(1, 366)
+ax3.set_ylim(bottom=0)
 ax3.legend(title="Year")
 
 plt.tight_layout()
