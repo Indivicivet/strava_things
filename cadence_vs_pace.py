@@ -25,9 +25,9 @@ HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
 
 def my_smooth(data, smooth_length=10):
-    return np.array([
-        np.mean(data[i : i + smooth_length]) for i in range(len(data) - smooth_length)
-    ])
+    return np.array(
+        [np.mean(data[i : i + smooth_length]) for i in range(len(data) - smooth_length)]
+    )
 
 
 def std_if_valid(window_data, invalid_thres):
