@@ -40,6 +40,13 @@ def window_std(data, window=10, invalid_thres=80):
         for i in range(len(data) - window)
     ])
 
+def pace_formatter(x, pos):
+    if x <= 0:
+        return ""
+    pace_seconds = 1000 / x
+    minutes = int(pace_seconds // 60)
+    seconds = int(pace_seconds % 60)
+    return f"{minutes}:{seconds:02d}"
 
 
 plot_runs = runs[:LAST_N]
@@ -109,7 +116,8 @@ if PLOT_KDE:
         # fill=True,  # n.b. would have to redraw highlighted run after
     )
 
-plt.xlabel("velocity")
+plt.gca().xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(pace_formatter))
+plt.xlabel("pace (min/km)")
 plt.ylabel(
     "stride length"
     if PLOT_STRIDE_LENGTH
