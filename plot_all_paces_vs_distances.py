@@ -212,7 +212,7 @@ if PLOT_TOPLINES_ONLY:
                 date_str = dt.strftime("%Y-%m-%d") if dt else "Unknown Date"
                 end_str = f" - {end / 1000:.1f}km" if start != end else ""
                 print(
-                    f" [{date_str}]https://www.strava.com/activities/{act}"
+                    f" [{date_str}] https://www.strava.com/activities/{act}"
                     f" {start / 1000:.1f}km{end_str}"
                 )
 
