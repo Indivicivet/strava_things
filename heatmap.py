@@ -59,25 +59,30 @@ def get_km(latlng):
     return x_m / 1000, y_m / 1000
 
 
-# todo :: also weight by velocity so slower != brighter
-all_x, all_y = np.array(
-    [
-        get_km(latlng)
-        for activity in activities
-        for latlng in activity.latlng[::TAKE_EVERY_N_PTS]
-    ]
-).T
+# weight by velocity so slower movement doesn't artificially brighten the map
+# (gps points are roughly 1/sec, so staying still for 60s is 60 pts in one spot)
+all_points = []
+for activity in activities:
+    velocities = (
+        activity.velocity[::TAKE_EVERY_N_PTS]
+        if activity.velocity is not None
+        else [1] * len(activity.latlng[::TAKE_EVERY_N_PTS])
+    )
+    for latlng, vel in zip(activity.latlng[::TAKE_EVERY_N_PTS], velocities):
+        x, y = get_km(latlng)
+        all_points.append((x, y, vel))
 
-# print(len(all_x))
+all_x, all_y, all_v = np.array(all_points).T
 
-weights = None
 if WEIGHT_CENTERED is not None:
     counts, x_edges, y_edges = np.histogram2d(all_x, all_y, bins=BINS)
     i, j = np.unravel_index(np.argmax(counts), counts.shape)
     x0 = 0.5 * (x_edges[i] + x_edges[i + 1])
     y0 = 0.5 * (y_edges[j] + y_edges[j + 1])
-    # weight based on distance:
-    weights = ((all_x - x0) ** 2 + (all_y - y0) ** 2) ** (WEIGHT_CENTERED / 2)
+    # weight based on distance AND velocity:
+    weights = all_v * ((all_x - x0) ** 2 + (all_y - y0) ** 2) ** (WEIGHT_CENTERED / 2)
+else:
+    weights = all_v
 
 histogram_arr, x_edges, y_edges = np.histogram2d(
     all_x,
