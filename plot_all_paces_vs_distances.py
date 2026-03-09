@@ -151,7 +151,6 @@ for run in tqdm(runs[:999]):  # most recent
                 interval_time = interval_time.total_seconds()
             if interval_time < best_stats.times[arr_idx]:
                 best_stats.times[arr_idx] = interval_time
-                if run.heartrate is not None:
                 if hr_prefix_sum is not None:
                     best_stats.hrs[arr_idx] = (
                         hr_prefix_sum[latter_i] - hr_prefix_sum[start_i]
