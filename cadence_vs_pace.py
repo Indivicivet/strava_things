@@ -2,6 +2,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 import seaborn
+from tqdm import tqdm
 
 import strava_shared
 
@@ -32,7 +33,7 @@ all_y_vals = []
 all_weights = []
 
 plt.figure(figsize=(12.8, 7.2))
-for i, run in enumerate(plot_runs[::-1]):
+for i, run in enumerate(tqdm(plot_runs[::-1])):
     if PLOT_HEART_RATE and not run.heartrate:
         continue
     smooth_vel = my_smooth(run.velocity)
