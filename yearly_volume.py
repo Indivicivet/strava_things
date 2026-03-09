@@ -72,19 +72,21 @@ kernel /= kernel.sum()
 
 for year in years:
     # pad each year with adjacent years if possible
-    padded_vol = np.concatenate([
-        (
-            get_daily_array(year - 1)[-PAD:]
-            if year - 1 in yearly_daily_volumes
-            else np.zeros(PAD)
-        ),
-        get_daily_array(year),
-        (
-            get_daily_array(year + 1)[:PAD]
-            if year + 1 in yearly_daily_volumes
-            else np.zeros(PAD)
-        ),
-    ])
+    padded_vol = np.concatenate(
+        [
+            (
+                get_daily_array(year - 1)[-PAD:]
+                if year - 1 in yearly_daily_volumes
+                else np.zeros(PAD)
+            ),
+            get_daily_array(year),
+            (
+                get_daily_array(year + 1)[:PAD]
+                if year + 1 in yearly_daily_volumes
+                else np.zeros(PAD)
+            ),
+        ]
+    )
     ax3.plot(
         np.arange(1, 367),
         np.convolve(padded_vol, kernel, mode="valid"),
