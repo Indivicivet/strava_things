@@ -6,28 +6,36 @@ import numpy as np
 import seaborn as sns
 import strava_shared
 
-RUNS_ONLY = True
+RUNS_ONLY_FOR_KDE = True
 
 runs = strava_shared.load_runs(require_cadences=False)
 
-filtered_runs = [
-    run for run in runs if run.activity_type == "Run" or not RUNS_ONLY
-]
-
-yearly_non_dec_volume = defaultdict(float)
-yearly_dec_volume = defaultdict(float)
+yearly_run_non_dec_volume = defaultdict(float)
+yearly_run_dec_volume = defaultdict(float)
+yearly_other_non_dec_volume = defaultdict(float)
+yearly_other_dec_volume = defaultdict(float)
 yearly_daily_volumes = defaultdict(lambda: defaultdict(float))
 
-for run in filtered_runs:
+for run in runs:
+    is_run = run.activity_type == "Run"
     year = run.date.year
     month = run.date.month
     day_of_year = run.date.timetuple().tm_yday
     distance_km = run.distance[-1] / 1000.0
-    if month == 12:
-        yearly_dec_volume[year] += distance_km
+
+    if is_run:
+        if month == 12:
+            yearly_run_dec_volume[year] += distance_km
+        else:
+            yearly_run_non_dec_volume[year] += distance_km
     else:
-        yearly_non_dec_volume[year] += distance_km
-    yearly_daily_volumes[year][day_of_year] += distance_km
+        if month == 12:
+            yearly_other_dec_volume[year] += distance_km
+        else:
+            yearly_other_non_dec_volume[year] += distance_km
+
+    if is_run or not RUNS_ONLY_FOR_KDE:
+        yearly_daily_volumes[year][day_of_year] += distance_km
 
 years = sorted(yearly_daily_volumes.keys())
 
@@ -37,18 +45,38 @@ gs = fig.add_gridspec(2, 2)
 
 # top: not-dec vs dec
 ax1 = fig.add_subplot(gs[0, 0])
-non_dec_vals = [yearly_non_dec_volume[y] for y in years]
-ax1.bar(years, non_dec_vals, color="steelblue")
-ax1.set_title("Total Run Volume: Jan - Nov")
+non_dec_run_vals = [yearly_run_non_dec_volume[y] for y in years]
+non_dec_other_vals = [yearly_other_non_dec_volume[y] for y in years]
+ax1.bar(years, non_dec_run_vals, color="steelblue", label="Runs")
+ax1.bar(
+    years,
+    non_dec_other_vals,
+    bottom=non_dec_run_vals,
+    color="steelblue",
+    alpha=0.3,
+    label="Other",
+)
+ax1.set_title("Total Volume: Jan - Nov")
 ax1.set_ylabel("Distance (km)")
 ax1.set_xticks(years)
+ax1.legend()
 
 ax2 = fig.add_subplot(gs[0, 1])
-dec_vals = [yearly_dec_volume[y] for y in years]
-ax2.bar(years, dec_vals, color="darkorange")
-ax2.set_title("Total Run Volume: December")
+dec_run_vals = [yearly_run_dec_volume[y] for y in years]
+dec_other_vals = [yearly_other_dec_volume[y] for y in years]
+ax2.bar(years, dec_run_vals, color="darkorange", label="Runs")
+ax2.bar(
+    years,
+    dec_other_vals,
+    bottom=dec_run_vals,
+    color="darkorange",
+    alpha=0.3,
+    label="Other",
+)
+ax2.set_title("Total Volume: December")
 ax2.set_ylabel("Distance (km)")
 ax2.set_xticks(years)
+ax2.legend()
 
 # Bottom: KDE of daily volume
 ax3 = fig.add_subplot(gs[1, :])
@@ -93,7 +121,7 @@ for year in years:
         label=str(year),
     )
 
-ax3.set_title("Running Volume")
+ax3.set_title("Running Volume" if RUNS_ONLY_FOR_KDE else "Total Volume")
 ax3.set_xlabel("Day")
 ax3.set_ylabel("Volume (km)")
 ax3.set_xlim(1, 366)
