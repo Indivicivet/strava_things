@@ -60,9 +60,8 @@ for i, run in enumerate(tqdm(plot_runs[::-1])):
         if PLOT_STRIDE_LENGTH
         else np.array(my_smooth(run.heartrate)) if PLOT_HEART_RATE else smooth_cadence
     )
-    mask = (
-        (window_std(run.velocity, invalid_thres=0.2) < VELOCITY_STD_THRESHOLD)
-        & (window_std(run.cadence, invalid_thres=80) < CADENCE_STD_THRESHOLD)
+    mask = (window_std(run.velocity, invalid_thres=0.2) < VELOCITY_STD_THRESHOLD) & (
+        window_std(run.cadence, invalid_thres=80) < CADENCE_STD_THRESHOLD
     )
 
     smooth_vel = smooth_vel[mask]
