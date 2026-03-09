@@ -128,19 +128,20 @@ if PLOT_TOPLINES_ONLY:
 
 for run in tqdm(runs[:999]):  # most recent
     best_stats = IntervalStatistics.for_length_by_defaults(run.distance[-1])
-    for start_i, start_d in enumerate(run.distance):
-        for latter_i, latter_d in enumerate(run.distance):
-            if latter_i <= start_i:
-                continue  # easiest way to code it up. probs not 2slow.
+    for arr_idx in range(len(best_stats.times)):
+        target_dist = (arr_idx + START_DISTANCE_IDX) * PLOT_DISTANCE_INTERVAL
+        latter_i = 0
+        for start_i, start_d in enumerate(run.distance):
+            while (
+                latter_i < len(run.distance)
+                and (run.distance[latter_i] - start_d) < target_dist
+            ):
+                latter_i += 1
+
+            if latter_i >= len(run.distance):
+                break
+
             interval_time = run.time[latter_i] - run.time[start_i]
-            arr_idx = (
-                int((latter_d - start_d) / PLOT_DISTANCE_INTERVAL)
-                - START_DISTANCE_IDX
-            )
-            # todo :: not sure how the arr_idx == len(best_stats.times)
-            # comes about; might be fine, or might be making arrs of bad length
-            if arr_idx < 0 or arr_idx >= len(best_stats.times):
-                continue
             if isinstance(interval_time, datetime.timedelta):
                 interval_time = interval_time.total_seconds()
             if interval_time < best_stats.times[arr_idx]:
@@ -154,9 +155,6 @@ for run in tqdm(runs[:999]):  # most recent
         for (max_date, min_date), timespan_stats in topline_stats.items():
             if not (min_date <= run.date < max_date):
                 continue
-            topline_stats[(max_date, min_date)] = timespan_stats.update_with(
-                best_stats
-            )
             topline_stats[(max_date, min_date)] = timespan_stats.update_with(best_stats)
     if not PLOT_TOPLINES_ONLY:
         paces = best_stats.get_pace_datetimes()
