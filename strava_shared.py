@@ -46,30 +46,17 @@ def load_activities(require_cadences=True):
         this_latlng = None
         streams = info["streams"]
         if isinstance(streams, list):
-            # old format, pre 2025-09ish
-            for retrieved in streams:
-                # todo :: wow this is awful. :)
-                if retrieved["type"] == "velocity_smooth":
-                    this_velocities = retrieved["data"]
-                if retrieved["type"] == "distance":
-                    this_distances = retrieved["data"]
-                if retrieved["type"] == "time":
-                    this_times = retrieved["data"]
-                if retrieved["type"] == "cadence":
-                    this_cadences = retrieved["data"]
-                if retrieved["type"] == "heartrate":
-                    this_hrs = retrieved["data"]
-                if retrieved["type"] == "latlng":
-                    this_latlng = retrieved["data"]
-        elif isinstance(streams, dict):
+            # old format, pre 2025-09ish: convert to dict layout
+            streams = {s["type"]: s for s in streams}
 
+        if isinstance(streams, dict):
+            # unified format (dict of dicts)
             def _getdata(label):
                 stream = streams.get(label)
                 if stream is None:
                     return None
                 return stream["data"]
 
-            # new format, 2025-09ish onwards
             this_velocities = _getdata("velocity_smooth")
             this_distances = _getdata("distance")
             this_times = _getdata("time")
