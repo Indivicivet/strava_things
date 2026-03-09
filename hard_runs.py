@@ -23,6 +23,7 @@ for activity in tqdm(activities):
 # Sort by date (already sorted by load_activities, but just in case)
 hard_activities.sort(key=lambda x: x[0])
 
+print("velocity over heart rate")
 for date, ratio in hard_activities:
     date_str = date.strftime("%Y-%m-%d %H:%M:%S")
-    print(f"{date_str}, {ratio}")
+    print(f"{date_str}, {100 * ratio:.2f}%")
