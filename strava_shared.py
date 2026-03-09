@@ -19,6 +19,7 @@ class Run:
     heartrate: Optional[list] = None
     latlng: Optional[list] = None
     date: Optional[datetime.datetime] = None
+    activity_type: str = "Run"
 
 
 def load_runs(require_cadences=True):
@@ -95,6 +96,7 @@ def load_runs(require_cadences=True):
                     )
                 ).replace(tzinfo=datetime.timezone.utc),
                 # ^todo :: proper timezone handling?
+                activity_type=info["metadata"].get("type", "Run"),
             )
         )
     for p in MY_DATA_FOLDER.glob("*.gpx"):
@@ -127,6 +129,7 @@ def load_runs(require_cadences=True):
                 ],
                 latlng=[(point.latitude, point.longitude) for point in segment.points],
                 date=gpx.time,
+                activity_type="Run",  # GPX doesn't easily store type in a standard way here
             ),
         )
     return sorted(runs, key=lambda r: r.date, reverse=True)
