@@ -14,6 +14,7 @@ PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
 LAST_N = 50
 PLOT_SCATTER = True
 PLOT_KDE = True
+KDE_BASED_ON_DISTANCE = True
 HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
 
@@ -28,6 +29,7 @@ plot_runs = runs[:LAST_N]
 # only used for kde plot
 all_vels = []
 all_y_vals = []
+all_weights = []
 
 plt.figure(figsize=(12.8, 7.2))
 for i, run in enumerate(plot_runs[::-1]):
@@ -53,6 +55,10 @@ for i, run in enumerate(plot_runs[::-1]):
         # plot at the end
         all_vels = np.append(all_vels, smooth_vel)
         all_y_vals = np.append(all_y_vals, plot_y_vals)
+        all_weights = np.append(
+            all_weights,
+            smooth_vel if KDE_BASED_ON_DISTANCE else np.ones(len(smooth_vel)),
+        )
     if PLOT_SCATTER or highlight_this_run:
         plt.scatter(
             smooth_vel,
@@ -72,6 +78,7 @@ if PLOT_KDE:
     seaborn.kdeplot(
         x=all_vels,
         y=all_y_vals,
+        weights=all_weights,
         levels=15,
         # fill=True,  # n.b. would have to redraw highlighted run after
     )
