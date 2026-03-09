@@ -19,8 +19,7 @@ HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
 def my_smooth(data, smooth_length=10):
     return [
-        np.mean(data[i:i+smooth_length])
-        for i in range(len(data) - smooth_length)
+        np.mean(data[i : i + smooth_length]) for i in range(len(data) - smooth_length)
     ]
 
 
@@ -39,16 +38,16 @@ for i, run in enumerate(plot_runs[::-1]):
     plot_y_vals = (
         np.array(smooth_vel) / (smooth_cadence / 60)
         if PLOT_STRIDE_LENGTH
-        else my_smooth(run.heartrate)
-        if PLOT_HEART_RATE
-        else smooth_cadence
+        else my_smooth(run.heartrate) if PLOT_HEART_RATE else smooth_cadence
     )
     highlight_this_run = (
         i == len(plot_runs) - 1
         if HIGHLIGHT_RUN == "latest"
-        else run.activity_id == str(HIGHLIGHT_RUN)
-        if HIGHLIGHT_RUN is not None
-        else False
+        else (
+            run.activity_id == str(HIGHLIGHT_RUN)
+            if HIGHLIGHT_RUN is not None
+            else False
+        )
     )
     if PLOT_KDE:
         # plot at the end
@@ -59,16 +58,8 @@ for i, run in enumerate(plot_runs[::-1]):
             smooth_vel,
             plot_y_vals,
             # color=matplotlib.cm.get_cmap("PiYG").reversed()(run.distance[-1] / 30000),
-            color=(
-                ("red" if highlight_this_run else "black")
-                if HIGHLIGHT_RUN
-                else None
-            ),
-            alpha=(
-                (1 if highlight_this_run else 0.03)
-                if HIGHLIGHT_RUN
-                else 0.01
-            ),
+            color=("red" if highlight_this_run else "black") if HIGHLIGHT_RUN else None,
+            alpha=(1 if highlight_this_run else 0.03) if HIGHLIGHT_RUN else 0.01,
             s=3,
         )
         if len(plot_runs) <= 5:
@@ -89,8 +80,6 @@ plt.xlabel("velocity")
 plt.ylabel(
     "stride length"
     if PLOT_STRIDE_LENGTH
-    else "heart rate"
-    if PLOT_HEART_RATE
-    else "cadence"
+    else "heart rate" if PLOT_HEART_RATE else "cadence"
 )
 plt.show()
