@@ -54,11 +54,6 @@ ax2.set_xticks(years)
 ax3 = fig.add_subplot(gs[1, :])
 
 # Smoothing kernel
-sigma = 7  # Days for smoothing
-pad = 3 * sigma
-x_kernel = np.arange(-pad, pad + 1)
-kernel = np.exp(-(x_kernel**2) / (2 * sigma**2))
-kernel /= kernel.sum()
 
 
 def get_daily_array(y):
@@ -69,34 +64,30 @@ def get_daily_array(y):
     return arr
 
 
+SIGMA = 7
+PAD = 3 * SIGMA
+x_kernel = np.arange(-PAD, PAD + 1)
+kernel = np.exp(-(x_kernel**2) / (2 * SIGMA**2))
+kernel /= kernel.sum()
+
 for year in years:
-    daily_vol = get_daily_array(year)
-
-    # Pad with adjacent years if possible, otherwise repeat current year edges
-    if year - 1 in yearly_daily_volumes:
-        prev_tail = get_daily_array(year - 1)[-pad:]
-    else:
-        prev_tail = daily_vol[
-            :pad
-        ]  # fallback: repeat start (mirroring or just repeating)
-        # Actually, user said "preceding year's values".
-        # If no preceding year, we might just have to accept 0 or repeat.
-        # Let's repeat the first day's value or similar to avoid the drop.
-        prev_tail = np.full(pad, daily_vol[0])
-
-    if year + 1 in yearly_daily_volumes:
-        next_head = get_daily_array(year + 1)[:pad]
-    else:
-        next_head = np.full(pad, daily_vol[-1])
-
-    padded_vol = np.concatenate([prev_tail, daily_vol, next_head])
-
-    # Smooth using 'valid' to get exactly 366 days back
-    smoothed_vol = np.convolve(padded_vol, kernel, mode="valid")
-
+    # pad each year with adjacent years if possible
+    padded_vol = np.concatenate([
+        (
+            get_daily_array(year - 1)[-PAD:]
+            if year - 1 in yearly_daily_volumes
+            else np.zeros(PAD)
+        ),
+        get_daily_array(year),
+        (
+            get_daily_array(year + 1)[:PAD]
+            if year + 1 in yearly_daily_volumes
+            else np.zeros(PAD)
+        ),
+    ])
     ax3.plot(
         np.arange(1, 367),
-        smoothed_vol,
+        np.convolve(padded_vol, kernel, mode="valid"),
         label=str(year),
     )
 
