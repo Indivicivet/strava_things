@@ -160,10 +160,8 @@ for run in tqdm(runs[:999]):  # most recent
                 and (run.distance[latter_i] - start_d) < target_dist
             ):
                 latter_i += 1
-
             if latter_i >= len(run.distance):
                 break
-
             interval_time = run.time[latter_i] - run.time[start_i]
             if isinstance(interval_time, datetime.timedelta):
                 interval_time = interval_time.total_seconds()
@@ -212,12 +210,10 @@ if PLOT_TOPLINES_ONLY:
                 if not act:
                     return
                 date_str = dt.strftime("%Y-%m-%d") if dt else "Unknown Date"
-                if start == end:
-                    dist_str = f"{start / 1000:.1f}km"
-                else:
-                    dist_str = f"{start / 1000:.1f}km - {end / 1000:.1f}km"
+                end_str = f" - {end / 1000:.1f}km" if start != end else ""
                 print(
-                    f"https://www.strava.com/activities/{act} [{date_str}] {dist_str}"
+                    f" [{date_str}]https://www.strava.com/activities/{act}"
+                    f" {start / 1000:.1f}km{end_str}"
                 )
 
             for i in range(1, len(timespan_stats.activity_ids)):
