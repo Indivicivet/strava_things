@@ -1,47 +1,28 @@
 """
-old script - todo :: update to use strava shared ^^
+old script, slightly jank - velocity over heart rate
 """
 
 
-import time
-from pathlib import Path
+import numpy as np
+from tqdm import tqdm
 
-import requests
+import strava_shared
 
-#resp = requests.post(
-#    "https://www.strava.com/oauth/token?"
-#    "client_id=CLIENT_ID&"
-#    "client_secret=CLIENT_SECRET&"
-#    "code=CODE_FROM_THING&"
-#    "grant_type=authorization_code"
-#)
-#print(resp.json())
+activities = strava_shared.load_activities(require_cadences=False)
 
-token = (
-    Path(__file__).parents[1] / "access_tokens_2023" / "strava_token.txt"
-).read_text().strip()
+hard_activities = []
 
-def get_activity(id=9535755237):
-    return requests.get(
-        f"https://www.strava.com/api/v3/activities/{id}"
-        f"?include_all_efforts=",
-        headers={"Authorization": "Bearer " + token}
-    )
+for activity in tqdm(activities):
+    if activity.heartrate is None or activity.distance[-1] <= 5000:
+        continue
+    if np.max(activity.heartrate) > 150:
+        hard_activities.append(
+            (activity.date, np.mean(activity.velocity) / np.mean(activity.heartrate))
+        )
 
-def get_activities(per_page=30):
-    return requests.get(
-        f"https://www.strava.com/api/v3/athlete/activities?before="
-        f"{int(time.time())}&after=964796319&per_page={per_page}",
-        headers={"Authorization": "Bearer " + token},
-    ).json()
+# Sort by date (already sorted by load_activities, but just in case)
+hard_activities.sort(key=lambda x: x[0])
 
-ra = get_activities(80)
-
-for l in [
-    (r["start_date"], r["average_speed"] / r["average_heartrate"])
-    for r in ra
-    if r["has_heartrate"]
-       and r["distance"] > 5000
-       and r["max_heartrate"] > 150
-]:
-    print(l[0].replace("T", " ").replace("Z", ""), ",", l[1])
+for date, ratio in hard_activities:
+    date_str = date.strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{date_str}, {ratio}")
