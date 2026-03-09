@@ -30,8 +30,12 @@ def my_smooth(data, smooth_length=10):
     ])
 
 
-def window_std(data, window=10):
-    return np.array([np.std(data[i : i + window]) for i in range(len(data) - window)])
+def std_if_valid(window_data, invalid_thres):
+    return 9999 if any(x < invalid_thres for x in window_data) else np.std(window_data)
+
+
+def window_std(data, window=10, invalid_thres=80):
+    return np.array([std_if_valid(data[i : i + window], invalid_thres) for i in range(len(data) - window)])
 
 
 
@@ -54,8 +58,8 @@ for i, run in enumerate(tqdm(plot_runs[::-1])):
         else np.array(my_smooth(run.heartrate)) if PLOT_HEART_RATE else smooth_cadence
     )
     mask = (
-        (window_std(run.velocity) < VELOCITY_STD_THRESHOLD)
-        & (window_std(run.cadence) < CADENCE_STD_THRESHOLD)
+        (window_std(run.velocity, invalid_thres=0.2) < VELOCITY_STD_THRESHOLD)
+        & (window_std(run.cadence, invalid_thres=80) < CADENCE_STD_THRESHOLD)
     )
 
     smooth_vel = smooth_vel[mask]
