@@ -146,9 +146,10 @@ for run in tqdm(runs[:999]):  # most recent
             if interval_time < best_stats.times[arr_idx]:
                 best_stats.times[arr_idx] = interval_time
                 if run.heartrate is not None:
-                    best_stats.hrs[arr_idx] = sum(
-                        run.heartrate[start_i:latter_i]
-                    ) / (latter_i - start_i)
+                    # todo :: maybe this averaging could also be optimized?
+                    best_stats.hrs[arr_idx] = sum(run.heartrate[start_i:latter_i]) / (
+                        latter_i - start_i
+                    )
     if PLOT_TOPLINES_ONLY:
         for (max_date, min_date), timespan_stats in topline_stats.items():
             if not (min_date <= run.date < max_date):
