@@ -6,17 +6,13 @@ import numpy as np
 import seaborn as sns
 import strava_shared
 
-INCLUDE_WALKS = False
+RUNS_ONLY = True
 
 runs = strava_shared.load_runs(require_cadences=False)
 
-# Filter for runs (and walks if INCLUDE_WALKS is True)
-filtered_runs = []
-for run in runs:
-    if run.activity_type == "Run":
-        filtered_runs.append(run)
-    elif INCLUDE_WALKS and run.activity_type == "Walk":
-        filtered_runs.append(run)
+filtered_runs = [
+    run for run in runs if run.activity_type == "Run" or not RUNS_ONLY
+]
 
 yearly_non_dec_volume = defaultdict(float)
 yearly_dec_volume = defaultdict(float)
