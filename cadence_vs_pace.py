@@ -16,21 +16,23 @@ LAST_N = 50
 PLOT_SCATTER = True
 PLOT_KDE = True
 KDE_BASED_ON_DISTANCE = True
+
+# filters for velocity and cadence stability
+VELOCITY_STD_THRESHOLD = 0.5
+CADENCE_STD_THRESHOLD = 5
+
 HIGHLIGHT_RUN = "latest"  # "latest" or None or an activity id
 
 
 def my_smooth(data, smooth_length=10):
-    return [
+    return np.array([
         np.mean(data[i : i + smooth_length]) for i in range(len(data) - smooth_length)
-    ]
+    ])
 
 
 def window_std(data, window=10):
-    return [np.std(data[i : i + window]) for i in range(len(data) - window)]
+    return np.array([np.std(data[i : i + window]) for i in range(len(data) - window)])
 
-
-VEL_STD_THRESHOLD = 0.5
-CAD_STD_THRESHOLD = 5
 
 
 plot_runs = runs[:LAST_N]
@@ -44,17 +46,17 @@ plt.figure(figsize=(12.8, 7.2))
 for i, run in enumerate(tqdm(plot_runs[::-1])):
     if PLOT_HEART_RATE and not run.heartrate:
         continue
-    smooth_vel = np.array(my_smooth(run.velocity))
-    smooth_cadence = np.array(my_smooth(run.cadence))
-    plot_y_vals = (
+    smooth_vel = my_smooth(run.velocity)
+    smooth_cadence = my_smooth(run.cadence)
+    plot_y_vals = np.array(
         smooth_vel / (smooth_cadence / 60)
         if PLOT_STRIDE_LENGTH
         else np.array(my_smooth(run.heartrate)) if PLOT_HEART_RATE else smooth_cadence
     )
-
-    std_vel = np.array(window_std(run.velocity))
-    std_cad = np.array(window_std(run.cadence))
-    mask = (std_vel < VEL_STD_THRESHOLD) & (std_cad < CAD_STD_THRESHOLD)
+    mask = (
+        (window_std(run.velocity) < VELOCITY_STD_THRESHOLD)
+        & (window_std(run.cadence) < CADENCE_STD_THRESHOLD)
+    )
 
     smooth_vel = smooth_vel[mask]
     plot_y_vals = plot_y_vals[mask]
@@ -92,6 +94,7 @@ for i, run in enumerate(tqdm(plot_runs[::-1])):
             )
 
 if PLOT_KDE:
+    print("Plotting KDE...")
     seaborn.kdeplot(
         x=all_vels,
         y=all_y_vals,
