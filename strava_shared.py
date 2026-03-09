@@ -100,12 +100,8 @@ def load_activities(require_cadences=True):
                 ),
                 heartrate=this_hrs,
                 latlng=this_latlng,
-                date=datetime.datetime(
-                    # todo :: should parse out the whole thing really eh?
-                    *map(
-                        int,
-                        info["metadata"]["start_date"].split("T")[0].split("-"),
-                    )
+                date=datetime.datetime.strptime(
+                    info["metadata"]["start_date"], "%Y-%m-%dT%H:%M:%SZ"
                 ).replace(tzinfo=datetime.timezone.utc),
                 # ^todo :: proper timezone handling?
                 activity_type=ActivityType(info["metadata"].get("type", "Run")),
