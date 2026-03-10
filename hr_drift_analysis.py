@@ -141,63 +141,67 @@ def main():
     global_max_hr = max(res["max_hr"] for res in results)
     hm_target_hr = global_max_hr * HM_INTENSITY_FACTOR
 
-    # Use the median EF of the last 5 suitable runs for stability
-    recent_results = results[-5:]
-    avg_recent_ef = np.median([r["avg_ef"] for r in recent_results])
+    # Calculate rolling predictions over time
+    for i in range(len(results)):
+        # Calculate rolling metrics based on the preceding 5 runs (inclusive of current)
+        window = results[max(0, i - 4) : i + 1]
+        rolling_ef = np.median([r["avg_ef"] for r in window])
+        rolling_drift_per_min = np.mean(
+            [r["drift_pct"] / r["duration_min"] for r in window]
+        )
 
-    # Predicted HM Pace (m/min) = EF * TargetHR
-    predicted_pace_m_min = avg_recent_ef * hm_target_hr
+        # Predicted Pace (m/min) = EF * TargetHR
+        pred_pace_m_min = rolling_ef * hm_target_hr
+        # Fatigue Penalty (based on 90 min race, so 45 min midpoint)
+        dur_penalty = 1.0 - (rolling_drift_per_min * 45 / 100)
+        adj_pace_m_min = pred_pace_m_min * dur_penalty
 
-    # Pacing adjustment based on average drift recorded
-    avg_drift_per_min = np.mean(
-        [r["drift_pct"] / r["duration_min"] for r in recent_results]
-    )
+        # Total Predicted HM Time in minutes
+        results[i]["predicted_hm_min"] = HM_DISTANCE_KM * 1000 / adj_pace_m_min
 
-    # A half marathon takes roughly 1.5 - 2 hours.
-    # Let's estimate the "Fatigue Penalty" at 90 minutes.
-    # If drift is 5% per hour, then at 90 mins we might be 7.5% less efficient
-    # than at start.
-    # We take the middle-of-race efficiency as the baseline (which we already
-    # do with avg_ef)
-    # but we add a penalty if the slope is particularly steep.
-
-    durability_penalty = 1.0 - (avg_drift_per_min * 45 / 100)  # Half of 90 mins
-    adjusted_pace_m_min = predicted_pace_m_min * durability_penalty
-
-    total_minutes = HM_DISTANCE_KM * 1000 / adjusted_pace_m_min
+    # Use the final calculation for the printed summary
+    final_hm_min = results[-1]["predicted_hm_min"]
+    final_pace_m_min = (HM_DISTANCE_KM * 1000) / final_hm_min
+    pace_min_km = 1000 / final_pace_m_min
+    pace_min = int(pace_min_km)
+    pace_sec = int((pace_min_km - pace_min) * 60)
 
     print(f"\n--- HR Drift & Efficiency Analysis ---")
     print(f"Global Max HR detected: {global_max_hr} bpm")
     print(
         f"Assumed HM Intensity: {hm_target_hr:.1f} bpm ({HM_INTENSITY_FACTOR*100}% of Max)"
     )
-    print(f"Recent Baseline EF: {avg_recent_ef:.3f}")
-    print(f"Avg Drift Rate: {avg_drift_per_min:.3f}% per minute")
-
-    pace_min_km = 1000 / adjusted_pace_m_min
-    pace_min = int(pace_min_km)
-    pace_sec = int((pace_min_km - pace_min) * 60)
-
-    print(f"\n--- Half Marathon Prediction ---")
-    print(f"Predicted Pace: {pace_min}:{pace_sec:02d} /km")
+    print(f"Current Baseline EF: {results[-1]['avg_ef']:.3f}")
     print(
-        f"Predicted Time: {int(total_minutes//60)}h {int(total_minutes%60)}m {int((total_minutes*60)%60)}s"
+        f"Current Drift Rate: {(results[-1]['drift_pct'] / results[-1]['duration_min']):.3f}% per minute"
     )
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+    print(f"\n--- Half Marathon Prediction (Latest) ---")
+    print(f"Predicted Pace: {pace_min}:{pace_sec:02d} /km")
+    print(
+        f"Predicted Time: {int(final_hm_min//60)}h {int(final_hm_min%60)}m {int((final_hm_min*60)%60)}s"
+    )
+
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 14), sharex=True)
 
     dates = [r["date"] for r in results]
     efs = [r["avg_ef"] for r in results]
     drifts = [r["drift_pct"] for r in results]
+    hm_times = [r["predicted_hm_min"] for r in results]
 
     ax1.plot(dates, efs, "o-", label="Efficiency Factor (Speed/HR)")
     ax1.set_title("Aerobic Efficiency Over Time")
     ax1.set_ylabel("EF (Lower is less efficient)")
 
-    ax2.plot(dates, drifts, alpha=0.7, label="Drift %")
+    ax2.plot(dates, drifts, "o-", alpha=0.7, label="Drift %")
     ax2.set_title("Heart Rate Drift % (Stable Portion)")
     ax2.set_ylabel("Drift %")
     ax2.axhline(5, color="#444444", linestyle="--", label="5% Threshold")
+
+    ax3.plot(dates, hm_times, "o-", label="Predicted HM Time")
+    ax3.set_title("Predicted Half Marathon Time Over Time (Rolling 5-Run Window)")
+    ax3.set_ylabel("Time (minutes)")
+    ax3.set_xlabel("Date")
 
     plt.tight_layout()
     # plt.savefig("hr_drift_trends.png")
@@ -207,4 +211,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
