@@ -2,13 +2,13 @@
 WIP vibe coded HR drift analysis haven't actually figured out properly
 """
 
-
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from scipy import stats
+import seaborn
+
 import strava_shared
-from pathlib import Path
+
 
 # Constants for HM Prediction
 # Estimated Half Marathon average heart rate is around 88% of max HR for most runners.
@@ -119,6 +119,7 @@ def analyze_activity(activity):
 
 
 def main():
+    seaborn.set()
     activities = strava_shared.load_activities(require_cadences=False)
     results = []
 
@@ -154,8 +155,10 @@ def main():
 
     # A half marathon takes roughly 1.5 - 2 hours.
     # Let's estimate the "Fatigue Penalty" at 90 minutes.
-    # If drift is 5% per hour, then at 90 mins we might be 7.5% less efficient than at start.
-    # We take the middle-of-race efficiency as the baseline (which we already do with avg_ef)
+    # If drift is 5% per hour, then at 90 mins we might be 7.5% less efficient
+    # than at start.
+    # We take the middle-of-race efficiency as the baseline (which we already
+    # do with avg_ef)
     # but we add a penalty if the slope is particularly steep.
 
     durability_penalty = 1.0 - (avg_drift_per_min * 45 / 100)  # Half of 90 mins
@@ -181,28 +184,27 @@ def main():
         f"Predicted Time: {int(total_minutes//60)}h {int(total_minutes%60)}m {int((total_minutes*60)%60)}s"
     )
 
-    # Plotting
-    sns.set()
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
 
     dates = [r["date"] for r in results]
     efs = [r["avg_ef"] for r in results]
     drifts = [r["drift_pct"] for r in results]
 
-    ax1.plot(dates, efs, "o-", color="royalblue", label="Efficiency Factor (Speed/HR)")
+    ax1.plot(dates, efs, "o-", label="Efficiency Factor (Speed/HR)")
     ax1.set_title("Aerobic Efficiency Over Time")
     ax1.set_ylabel("EF (Lower is less efficient)")
 
-    ax2.bar(dates, drifts, color="navy", alpha=0.7, label="Drift %")
+    ax2.plot(dates, drifts, alpha=0.7, label="Drift %")
     ax2.set_title("Heart Rate Drift % (Stable Portion)")
     ax2.set_ylabel("Drift %")
-    ax2.axhline(5, color="crimson", linestyle="--", label="5% Threshold")
+    ax2.axhline(5, color="#444444", linestyle="--", label="5% Threshold")
 
     plt.tight_layout()
-    plt.savefig("hr_drift_trends.png")
-    print("\nTrends plot saved to hr_drift_trends.png")
+    # plt.savefig("hr_drift_trends.png")
+    # print("Trends plot saved to hr_drift_trends.png")
     plt.show()
 
 
 if __name__ == "__main__":
     main()
+
