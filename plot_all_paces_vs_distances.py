@@ -142,7 +142,7 @@ if PLOT_TOPLINES_ONLY:
         }
 
 
-for activity in tqdm(activities[:999]):  # most recent
+for activity in tqdm(activities):  # most recent
     best_stats = IntervalStatistics.for_length_by_defaults(activity.distance[-1])
     best_stats.activity_ids[:] = activity.activity_id
     best_stats.dates[:] = activity.date

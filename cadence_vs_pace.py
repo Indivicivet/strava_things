@@ -8,11 +8,10 @@ import strava_shared
 
 seaborn.set()
 
-activities = strava_shared.load_activities()
+LATEST_N = 50
 
 PLOT_STRIDE_LENGTH = False
 PLOT_HEART_RATE = False  # todo :: could improve / separate visualization here
-LAST_N = 50
 PLOT_SCATTER = True
 PLOT_KDE = True
 KDE_BASED_ON_DISTANCE = True
@@ -22,6 +21,7 @@ VELOCITY_STD_THRESHOLD = 0.5
 CADENCE_STD_THRESHOLD = 5
 
 HIGHLIGHT_ACTIVITY = "latest"  # "latest" or None or an activity id
+activities = strava_shared.load_activities(latest_n=LATEST_N)
 
 
 def my_smooth(data, smooth_length=10):
@@ -50,15 +50,13 @@ def pace_formatter(x, pos):
     return f"{int(pace_seconds // 60)}:{int(pace_seconds % 60):02d}"
 
 
-plot_activities = activities[:LAST_N]
-
 # only used for kde plot
 all_vels = []
 all_y_vals = []
 all_weights = []
 
 plt.figure(figsize=(12.8, 7.2))
-for i, activity in enumerate(tqdm(plot_activities[::-1])):
+for i, activity in enumerate(tqdm(activities[::-1])):
     if PLOT_HEART_RATE and not activity.heartrate:
         continue
     smooth_vel = my_smooth(activity.velocity)
@@ -80,7 +78,7 @@ for i, activity in enumerate(tqdm(plot_activities[::-1])):
     plot_y_vals = plot_y_vals[mask]
 
     highlight_this_activity = (
-        i == len(plot_activities) - 1
+        i == len(activities) - 1
         if HIGHLIGHT_ACTIVITY == "latest"
         else (
             activity.activity_id == str(HIGHLIGHT_ACTIVITY)
@@ -111,7 +109,7 @@ for i, activity in enumerate(tqdm(plot_activities[::-1])):
             ),
             s=3,
         )
-        if len(plot_activities) <= 5:
+        if len(activities) <= 5:
             plt.plot(
                 smooth_vel,
                 plot_y_vals,

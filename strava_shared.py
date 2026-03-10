@@ -127,12 +127,20 @@ def load_activity_gpx(path: Path) -> Activity:
     )
 
 
-def load_activities(require_cadences=True):
+def load_activities(
+    require_cadences=True,
+    latest_n: Optional[int] = None,
+):
+    files = list(MY_DATA_FOLDER.glob("*.json")) + list(MY_DATA_FOLDER.glob("*.gpx"))
+    files.sort(key=lambda p: p.name, reverse=True)
+    if latest_n is not None:
+        files = files[:latest_n]
     activities = []
-    for p in MY_DATA_FOLDER.glob("*.json"):
-        activity = load_activity_json(p, require_cadences=require_cadences)
-        if activity is not None:
-            activities.append(activity)
-    for p in MY_DATA_FOLDER.glob("*.gpx"):
-        activities.append(load_activity_gpx(p))
+    for p in files:
+        if p.suffix == ".json":
+            activity = load_activity_json(p, require_cadences=require_cadences)
+            if activity is not None:
+                activities.append(activity)
+        elif p.suffix == ".gpx":
+            activities.append(load_activity_gpx(p))
     return sorted(activities, key=lambda r: r.date, reverse=True)
