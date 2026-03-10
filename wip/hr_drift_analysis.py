@@ -204,8 +204,8 @@ def main():
     ax3.set_xlabel("Date")
 
     plt.tight_layout()
-    # plt.savefig("hr_drift_trends.png")
-    # print("Trends plot saved to hr_drift_trends.png")
+    plt.savefig("hr_drift_trends.png")
+    print("\nTrends plot saved to hr_drift_trends.png")
     plt.show()
 
 
