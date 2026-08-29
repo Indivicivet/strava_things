@@ -34,7 +34,6 @@ class Activity:
     activity_type: ActivityType = ActivityType("Run")
 
 
-
 def load_activity_json(path: Path, require_cadences: bool = True) -> Optional[Activity]:
     info = json.loads(path.read_text())
     this_velocities = None
@@ -78,11 +77,7 @@ def load_activity_json(path: Path, require_cadences: bool = True) -> Optional[Ac
         distance=this_distances,
         time=this_times,
         # cadences are in cycles/min, I want spm
-        cadence=(
-            [2 * c for c in this_cadences]
-            if this_cadences is not None
-            else None
-        ),
+        cadence=([2 * c for c in this_cadences] if this_cadences is not None else None),
         heartrate=this_hrs,
         latlng=this_latlng,
         date=datetime.datetime.strptime(
@@ -117,8 +112,7 @@ def load_activity_gpx(path: Path) -> Activity:
         ],
         # todo :: these could probs do with being more robust
         heartrate=[
-            int(point.extensions[0].getchildren()[0].text)
-            for point in segment.points
+            int(point.extensions[0].getchildren()[0].text) for point in segment.points
         ],
         latlng=[(point.latitude, point.longitude) for point in segment.points],
         date=gpx.time,
