@@ -132,9 +132,6 @@ def load_activities(
     latest_n: Optional[int] = None,
 ):
     files = list(MY_DATA_FOLDER.glob("*.json")) + list(MY_DATA_FOLDER.glob("*.gpx"))
-    files.sort(key=lambda p: p.name, reverse=True)
-    if latest_n is not None:
-        files = files[:latest_n]
     activities = []
     for p in files:
         if p.suffix == ".json":
@@ -143,4 +140,7 @@ def load_activities(
                 activities.append(activity)
         elif p.suffix == ".gpx":
             activities.append(load_activity_gpx(p))
-    return sorted(activities, key=lambda r: r.date, reverse=True)
+    sorted_activities = sorted(activities, key=lambda r: r.date, reverse=True)
+    if latest_n is not None:
+        return sorted_activities[:latest_n]
+    return sorted_activities
