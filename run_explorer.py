@@ -1,3 +1,14 @@
+"""## Interactive run explorer
+
+Run `python run_explorer.py` to open the local browser app. It reads runs with GPS
+streams from `my_data` using the existing loader. Choose a broad area to zoom in,
+filter by date, switch between routes and a density-style heat view, and select a
+route or list entry for its distance and elapsed-time pace. Drag to pan and scroll
+to zoom. Export PNG saves the current map view, including any selected route.
+The map has no basemap and sends no location data to a mapping service. Area groups
+are approximate, and the heat view is a visual density rendering rather than the
+velocity-weighted histogram in `heatmap.py`. Press Ctrl+C in the terminal to stop."""
+
 import datetime
 import json
 import threading
