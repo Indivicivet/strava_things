@@ -86,8 +86,15 @@ def analyze_activity(activity):
     stable_speed = speed_m_min[stability_idx:]
     stable_hr = hr[stability_idx:]
 
-    if len(stable_times) < 100:
+    # Robustness tweak: Filter out walking/stopped (speed < 100 m/min) and HR dropouts (hr < 110 bpm)
+    valid_data = [(t, s, h) for t, s, h in zip(stable_times, stable_speed, stable_hr) if s > 100 and h > 110]
+
+    if len(valid_data) < 100:
         return None
+
+    stable_times = [d[0] for d in valid_data]
+    stable_speed = [d[1] for d in valid_data]
+    stable_hr = [d[2] for d in valid_data]
 
     efficiency_ratios = [calculate_ef(s, h) for s, h in zip(stable_speed, stable_hr)]
 
@@ -96,7 +103,8 @@ def analyze_activity(activity):
         stable_times, efficiency_ratios
     )
 
-    avg_ef = np.mean(efficiency_ratios)
+    # Use median instead of mean to be robust against momentary spikes/drops
+    avg_ef = np.median(efficiency_ratios)
 
     # Drift calculation: How much did EF drop from intercept to end of activity?
     start_ef_fitted = intercept + slope * stable_times[0]
@@ -138,7 +146,8 @@ def main():
     # HM Prediction logic
     # Use recent max HR as a proxy for fitness level
     # In a real app we'd ask the user, but we can guess from their hardest efforts
-    global_max_hr = max(res["max_hr"] for res in results)
+    # Robustness tweak: use 95th percentile instead of absolute max to ignore rogue HR sensor spikes
+    global_max_hr = np.percentile([res["max_hr"] for res in results], 95)
     hm_target_hr = global_max_hr * HM_INTENSITY_FACTOR
 
     # Calculate rolling predictions over time
@@ -146,14 +155,16 @@ def main():
         # Calculate rolling metrics based on the preceding 5 runs (inclusive of current)
         window = results[max(0, i - 4) : i + 1]
         rolling_ef = np.median([r["avg_ef"] for r in window])
-        rolling_drift_per_min = np.mean(
+        # Use median for drift to ignore weird anomalous runs
+        rolling_drift_per_min = np.median(
             [r["drift_pct"] / r["duration_min"] for r in window]
         )
 
         # Predicted Pace (m/min) = EF * TargetHR
         pred_pace_m_min = rolling_ef * hm_target_hr
         # Fatigue Penalty (based on 90 min race, so 45 min midpoint)
-        dur_penalty = 1.0 - (rolling_drift_per_min * 45 / 100)
+        # Robustness tweak: clamp the penalty so you can't get a negative or positive pace from crazy drift numbers
+        dur_penalty = max(0.6, min(1.0, 1.0 - (rolling_drift_per_min * 45 / 100)))
         adj_pace_m_min = pred_pace_m_min * dur_penalty
 
         # Total Predicted HM Time in minutes
