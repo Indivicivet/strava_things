@@ -5,9 +5,9 @@ streams from `my_data` using the existing loader. Choose a broad area to zoom in
 filter by date, switch between routes and a density-style heat view, and select a
 route or list entry for its distance and elapsed-time pace. Drag to pan and scroll
 to zoom. Export PNG saves the current map view, including any selected route.
-The map has no basemap and sends no location data to a mapping service. Area groups
-are approximate, and the heat view is a visual density rendering rather than the
-velocity-weighted histogram in `heatmap.py`. Press Ctrl+C in the terminal to stop."""
+The map has no basemap. Area groups are approximate; optionally naming them sends
+their centres to OpenStreetMap Nominatim. The heat view uses velocity and distance
+weighting like `heatmap.py`, adjusted to the current screen. Press Ctrl+C to stop."""
 
 import datetime
 import json
@@ -26,7 +26,18 @@ def activity_data(activity):
         or not activity.distance
     ):
         return None
-    points = [point for point in activity.latlng if point and len(point) == 2]
+    points = [
+        [
+            *point,
+            (
+                activity.velocity[i]
+                if activity.velocity and i < len(activity.velocity)
+                else 1
+            ),
+        ]
+        for i, point in enumerate(activity.latlng)
+        if point and len(point) == 2
+    ]
     if not points:
         return None
     duration = None
